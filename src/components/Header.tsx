@@ -9,10 +9,10 @@ const Header: React.FC = () => {
     <header className="w-full py-8 border-b border-gray-700/20 animate-fade-in bg-zinc-900/50 shadow-lg backdrop-blur-sm vhs-border">
       <div className="container-content flex flex-col items-center justify-center text-center">
         <div className="flex flex-col items-center vhs-glitch">
-          <div className="text-sm uppercase tracking-wider text-gray-400/70 vhs-text" data-text="Professional Audio Tool">
+          <div className="text-lg uppercase tracking-widest text-gray-400/70 vhs-text" data-text="Professional Audio Tool">
             Professional Audio Tool
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-500 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)] matrix-glow">
+          <h1 className="text-5xl font-bold tracking-tight text-gray-400 drop-shadow-lg glitch-text" data-text="Kits Organizadinhos 2000">
             Kits Organizadinhos 2000
           </h1>
         </div>
