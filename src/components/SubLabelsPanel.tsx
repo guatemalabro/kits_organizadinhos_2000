@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect, useRef } from 'react';
 import { useSampleContext } from '@/context/SampleContext';
 import { toast } from 'sonner';
@@ -195,31 +194,32 @@ const SubLabelsPanel: React.FC = () => {
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden" onClick={handleContainerClick}>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" />
       
+      {/* Significantly larger panel - taking up almost the entire viewport */}
       <div 
         ref={panelRef}
-        className="fixed inset-2 z-50 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl vhs-border flex flex-col"
+        className="fixed inset-1 z-50 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl vhs-border flex flex-col"
         onClick={handleContainerClick}
       >
-        <div className="p-4 md:p-6 border-b border-zinc-800 flex justify-between items-center sticky top-0 bg-zinc-900 z-10">
-          <h2 className="text-xl md:text-2xl font-bold text-orange-400 vhs-text" data-text="Audio Similarity Analysis">
+        <div className="p-5 md:p-6 border-b border-zinc-800 flex justify-between items-center sticky top-0 bg-zinc-900 z-10">
+          <h2 className="text-2xl md:text-3xl font-bold text-orange-400 vhs-text" data-text="Audio Similarity Analysis">
             Audio Similarity Analysis
           </h2>
           <button 
             onClick={handleCloseClick}
-            className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 transition-colors"
+            className="w-10 h-10 md:w-12 md:h-12 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 transition-colors"
             aria-label="Close"
           >
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
               <path d="M18 6 6 18"></path>
               <path d="m6 6 12 12"></path>
             </svg>
           </button>
         </div>
         
-        <div className="flex flex-col md:flex-row h-[calc(100%-5rem)] overflow-hidden">
-          {/* Left sidebar - Group list */}
-          <div className="w-full md:w-1/3 lg:w-1/4 bg-zinc-950/50 border-r border-zinc-800 overflow-y-auto p-4 md:p-6 h-1/3 md:h-full">
-            <h3 className="text-lg font-medium text-orange-300 mb-4 md:mb-6">Similarity Groups</h3>
+        <div className="flex flex-col md:flex-row h-[calc(100%-5.5rem)] overflow-hidden">
+          {/* Left sidebar - Group list - Made wider */}
+          <div className="w-full md:w-1/3 lg:w-1/4 bg-zinc-950/50 border-r border-zinc-800 overflow-y-auto p-5 md:p-6 h-1/3 md:h-full">
+            <h3 className="text-xl font-medium text-orange-300 mb-5">Similarity Groups</h3>
             
             {isAnalyzing ? (
               <div className="flex flex-col items-center justify-center h-48">
@@ -261,14 +261,14 @@ const SubLabelsPanel: React.FC = () => {
                       e.stopPropagation();
                       setSelectedGroup(groupName);
                     }}
-                    className={`w-full text-left p-3 rounded-md transition-colors cursor-pointer ${
+                    className={`w-full text-left p-4 rounded-md transition-colors cursor-pointer ${
                       selectedGroup === groupName 
                         ? 'bg-orange-500/20 border border-orange-500/40 text-orange-300' 
                         : 'hover:bg-zinc-800/50 border border-zinc-800/40 text-gray-400'
                     }`}
                   >
-                    <div className="font-medium text-base">{groupName}</div>
-                    <div className="text-xs text-gray-500 mt-1">
+                    <div className="font-medium text-lg">{groupName}</div>
+                    <div className="text-sm text-gray-500 mt-1">
                       {groupingResults[groupName]?.length || 0} samples
                     </div>
                   </button>
@@ -277,31 +277,31 @@ const SubLabelsPanel: React.FC = () => {
             )}
           </div>
           
-          {/* Right content area - Sample details */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-6 h-full">
+          {/* Right content area - Sample details - Increased padding and font sizes */}
+          <div className="flex-1 overflow-y-auto p-5 md:p-8 h-full">
             {isAnalyzing ? (
               <div className="flex flex-col items-center justify-center h-64">
-                <p className="text-gray-400 text-lg">Analyzing samples...</p>
-                <p className="text-gray-500 mt-2 text-sm">This may take a moment</p>
+                <p className="text-gray-400 text-xl">Analyzing samples...</p>
+                <p className="text-gray-500 mt-2 text-base">This may take a moment</p>
               </div>
             ) : selectedGroup ? (
               <>
-                <div className="mb-6">
-                  <h3 className="text-xl md:text-2xl font-medium text-orange-300 mb-3">{selectedGroup}</h3>
-                  <p className="text-gray-400">
+                <div className="mb-8">
+                  <h3 className="text-2xl md:text-3xl font-medium text-orange-300 mb-4">{selectedGroup}</h3>
+                  <p className="text-gray-400 text-lg">
                     {groupingResults[selectedGroup]?.length} samples with similar sonic characteristics
                   </p>
                 </div>
                 
-                <div className="bg-zinc-800/50 rounded-lg border border-zinc-700/30 p-4 md:p-6 mb-6">
-                  <h4 className="text-lg font-medium text-gray-300 mb-4">Samples in this group</h4>
+                <div className="bg-zinc-800/50 rounded-lg border border-zinc-700/30 p-6 md:p-8 mb-8">
+                  <h4 className="text-xl font-medium text-gray-300 mb-6">Samples in this group</h4>
                   
-                  <div className="overflow-y-auto max-h-[30vh] md:max-h-[40vh] pr-2">
+                  <div className="overflow-y-auto max-h-[40vh] md:max-h-[50vh] pr-2">
                     <table className="w-full">
                       <thead className="border-b border-zinc-700/50">
                         <tr>
-                          <th className="text-left text-xs font-medium text-gray-500 pb-3 w-12">#</th>
-                          <th className="text-left text-xs font-medium text-gray-500 pb-3">Sample Name</th>
+                          <th className="text-left text-sm font-medium text-gray-500 pb-4 w-16">#</th>
+                          <th className="text-left text-sm font-medium text-gray-500 pb-4">Sample Name</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-800/30">
@@ -315,8 +315,8 @@ const SubLabelsPanel: React.FC = () => {
                               toast.info(`Playing sample: ${sampleName}`);
                             }}
                           >
-                            <td className="py-3 text-gray-500 text-sm">{index + 1}</td>
-                            <td className="py-3 text-gray-300 group-hover:text-orange-300 transition-colors">{sampleName}</td>
+                            <td className="py-4 px-2 text-gray-500 text-base">{index + 1}</td>
+                            <td className="py-4 px-2 text-gray-300 text-lg group-hover:text-orange-300 transition-colors">{sampleName}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -330,7 +330,7 @@ const SubLabelsPanel: React.FC = () => {
                       e.stopPropagation();
                       exportGroups();
                     }}
-                    className="w-full py-3 md:py-4 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-medium transition-colors border border-orange-500/30 hover:border-orange-400/60 shadow-md hover:shadow-lg"
+                    className="w-full py-4 md:py-5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-lg font-medium transition-colors border border-orange-500/30 hover:border-orange-400/60 shadow-md hover:shadow-lg"
                   >
                     Export All Grouped Samples
                   </button>
@@ -340,7 +340,7 @@ const SubLabelsPanel: React.FC = () => {
                       e.stopPropagation();
                       analyzeSamples();
                     }}
-                    className="w-full py-2 md:py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-gray-300 font-medium transition-colors"
+                    className="w-full py-3 md:py-4 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-gray-300 text-lg font-medium transition-colors"
                   >
                     Re-analyze Samples
                   </button>
@@ -348,17 +348,17 @@ const SubLabelsPanel: React.FC = () => {
               </>
             ) : !isAnalyzing && groupNames.length === 0 ? (
               <div className="flex flex-col items-center justify-center h-64 text-center">
-                <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600 mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="1" strokeLinecap="round" strokeLinejoin="round" className="text-gray-600 mb-6">
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
-                <h3 className="text-xl font-medium text-gray-400 mb-2">No Analysis Results</h3>
-                <p className="text-gray-500 max-w-md mb-3">
+                <h3 className="text-2xl font-medium text-gray-400 mb-3">No Analysis Results</h3>
+                <p className="text-gray-500 text-lg max-w-lg mb-4">
                   {categories.some(cat => cat.selected) 
                     ? "Upload audio samples and run the analysis to group them by sonic characteristics."
                     : "Please select at least one category before running the analysis."}
                 </p>
                 {!categories.some(cat => cat.selected) && (
-                  <p className="text-orange-400 text-sm mb-4">
+                  <p className="text-orange-400 text-base mb-6">
                     Go back to the main screen and select some categories first.
                   </p>
                 )}
@@ -372,14 +372,14 @@ const SubLabelsPanel: React.FC = () => {
                       setShowSubLabelsPanel(false);
                     }
                   }}
-                  className="px-6 py-3 rounded-lg bg-orange-600/80 hover:bg-orange-500/80 text-white font-medium transition-colors"
+                  className="px-8 py-4 rounded-lg bg-orange-600/80 hover:bg-orange-500/80 text-white text-lg font-medium transition-colors"
                 >
                   {categories.some(cat => cat.selected) ? "Start Analysis" : "Go Back and Select Categories"}
                 </button>
               </div>
             ) : (
               <div className="flex flex-col items-center justify-center h-64 text-center">
-                <p className="text-gray-400">Select a group from the sidebar to view samples</p>
+                <p className="text-gray-400 text-xl">Select a group from the sidebar to view samples</p>
               </div>
             )}
           </div>
