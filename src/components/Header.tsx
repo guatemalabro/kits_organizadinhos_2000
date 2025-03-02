@@ -12,7 +12,7 @@ const Header: React.FC = () => {
           <div className="text-sm uppercase tracking-wider text-gray-400/70">
             Professional Audio Tool
           </div>
-          <h1 className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-gray-400 to-gray-500 drop-shadow-[0_0_8px_rgba(160,160,160,0.7)] vhs-text">
+          <h1 className="text-4xl font-bold tracking-tight text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-500 drop-shadow-[0_0_8px_rgba(74,222,128,0.8)] matrix-glow">
             Kits Organizadinhos 2000
           </h1>
         </div>
