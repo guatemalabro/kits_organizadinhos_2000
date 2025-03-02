@@ -1,4 +1,3 @@
-
 import React, { useState } from 'react';
 import { useSampleContext } from '@/context/SampleContext';
 import { Slider } from '@/components/ui/slider';
@@ -8,15 +7,18 @@ const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
   isOpen, 
   onClose 
 }) => {
-  const { samples, categories } = useSampleContext();
+  const { samples, categories, getFilteredSamples } = useSampleContext();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [groupingResults, setGroupingResults] = useState<Record<string, string[]>>({});
   const [analysisComplete, setAnalysisComplete] = useState(false);
   
   // Generate subgroups based on sonic characteristics
   const analyzeSamples = () => {
-    if (samples.length === 0) {
-      toast.error("No samples to analyze. Please upload audio files first.");
+    // Get only the samples from selected categories
+    const selectedSamples = getFilteredSamples();
+    
+    if (selectedSamples.length === 0) {
+      toast.error("No samples selected. Please select at least one category.");
       return;
     }
     
@@ -27,11 +29,12 @@ const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
     setTimeout(() => {
       const results: Record<string, string[]> = {};
       
-      // Process each category with samples
+      // Process each category with samples, but only if it's selected
       categories.forEach(category => {
-        if (category.count === 0) return;
+        if (!category.selected) return;
         
-        const categorySamples = samples.filter(s => s.category.id === category.id);
+        const categorySamples = selectedSamples.filter(s => s.category.id === category.id);
+        if (categorySamples.length === 0) return;
         
         // Create different subgroups based on category
         switch(category.id) {
@@ -82,10 +85,22 @@ const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
         }
       });
       
+      // Only keep non-empty groups
+      Object.keys(results).forEach(key => {
+        if (results[key].length === 0) {
+          delete results[key];
+        }
+      });
+      
       setGroupingResults(results);
       setIsAnalyzing(false);
       setAnalysisComplete(true);
-      toast.success("Samples analyzed and grouped based on sonic similarities!");
+      
+      if (Object.keys(results).length === 0) {
+        toast.warning("No groups could be created. Try selecting more samples.");
+      } else {
+        toast.success("Samples analyzed and grouped based on sonic similarities!");
+      }
     }, 2000);
   };
   
@@ -134,14 +149,12 @@ const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
             
             <button
               onClick={analyzeSamples}
-              disabled={isAnalyzing || samples.length === 0}
+              disabled={isAnalyzing}
               className="w-full py-3 rounded-lg bg-gray-800 hover:bg-gray-700 text-gray-300 font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none shadow-[0_0_15px_rgba(100,100,100,0.3)] hover:shadow-[0_0_20px_rgba(150,150,150,0.5)] vhs-glow"
             >
               {isAnalyzing 
                 ? 'Analyzing samples...' 
-                : samples.length === 0 
-                  ? 'Upload samples first' 
-                  : 'Analyze & Group Samples'}
+                : 'Analyze & Group Selected Samples'}
             </button>
           </div>
           

@@ -1,14 +1,25 @@
 
 import React, { useState } from 'react';
 import SubLabelsPanel from './SubLabelsPanel';
+import { useSampleContext } from '@/context/SampleContext';
+import { toast } from 'sonner';
 
 const SubLabelsButton: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
+  const { selectedSamplesCount } = useSampleContext();
+  
+  const handleButtonClick = () => {
+    if (selectedSamplesCount === 0) {
+      toast.error("Please select at least one category before using audio similarity grouping");
+      return;
+    }
+    setIsPanelOpen(true);
+  };
   
   return (
     <>
       <button
-        onClick={() => setIsPanelOpen(true)}
+        onClick={handleButtonClick}
         className="w-full px-4 py-3 mt-6 rounded-lg bg-zinc-800/80 hover:bg-zinc-700/80 text-gray-400 font-medium transition-colors border border-zinc-700/30 hover:border-zinc-600/60 focus-ring shadow-md hover:shadow-lg vhs-border flex items-center justify-center"
       >
         <div className="mr-2 w-5 h-5 bg-zinc-700 rounded-full flex items-center justify-center">
