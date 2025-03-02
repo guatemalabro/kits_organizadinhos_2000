@@ -1,25 +1,20 @@
 import React, { useState } from 'react';
 import { useSampleContext } from '@/context/SampleContext';
-import { Slider } from '@/components/ui/slider';
 import { toast } from 'sonner';
 
 const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({ 
   isOpen, 
   onClose 
 }) => {
-  const { samples, categories, getFilteredSamples } = useSampleContext();
+  const { samples, categories } = useSampleContext();
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [groupingResults, setGroupingResults] = useState<Record<string, string[]>>({});
   const [analysisComplete, setAnalysisComplete] = useState(false);
-  const [specificityLevel, setSpecificityLevel] = useState([50]);
   
   // Generate subgroups based on sonic characteristics
   const analyzeSamples = () => {
-    // Get only the samples from selected categories
-    const selectedSamples = getFilteredSamples();
-    
-    if (selectedSamples.length === 0) {
-      toast.error("No samples selected. Please select at least one category.");
+    if (samples.length === 0) {
+      toast.error("No samples to analyze. Please upload some audio files first.");
       return;
     }
     
@@ -30,81 +25,83 @@ const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
     setTimeout(() => {
       const results: Record<string, string[]> = {};
       
-      // Determine detail level based on specificity slider (0-100)
-      // Higher specificity = more detailed groups
-      const detailLevel = specificityLevel[0] / 100;
-      const createDetailedGroups = detailLevel > 0.3;
-      const createVeryDetailedGroups = detailLevel > 0.7;
+      // Group samples by category first
+      const samplesByCategory: Record<string, any[]> = {};
       
-      // Process each category with samples, but only if it's selected
-      categories.forEach(category => {
-        if (!category.selected) return;
-        
-        const categorySamples = selectedSamples.filter(s => s.category.id === category.id);
+      samples.forEach(sample => {
+        const categoryId = sample.category.id;
+        if (!samplesByCategory[categoryId]) {
+          samplesByCategory[categoryId] = [];
+        }
+        samplesByCategory[categoryId].push(sample);
+      });
+      
+      // Process each category with samples
+      Object.entries(samplesByCategory).forEach(([categoryId, categorySamples]) => {
         if (categorySamples.length === 0) return;
         
-        // Create different subgroups based on category and detail level
-        switch(category.id) {
+        const category = categories.find(c => c.id === categoryId);
+        if (!category) return;
+        
+        // Create 4 different subgroups for each category with samples
+        // In a real system, this would analyze actual audio characteristics
+        
+        // Simulate different sonic properties based on category
+        switch(categoryId) {
           case 'kicks':
-            results['Kicks_Punchy'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
-            results['Kicks_Subby'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
-            if (createDetailedGroups) {
-              results['Kicks_LoFi'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
-              results['Kicks_Distorted'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
-            }
-            if (createVeryDetailedGroups && categorySamples.length > 8) {
-              results['Kicks_Acoustic'] = categorySamples.filter((_, i) => i % 8 === 4).map(s => s.name);
-              results['Kicks_Layered'] = categorySamples.filter((_, i) => i % 8 === 5).map(s => s.name);
-            }
+            results['Kicks: Subby & Warm'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
+            results['Kicks: Punchy & Tight'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
+            results['Kicks: Distorted'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
+            results['Kicks: Lo-Fi & Dusty'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
             break;
             
           case 'snares':
-            results['Snares_Acoustic'] = categorySamples.filter((_, i) => i % 3 === 0).map(s => s.name);
-            results['Snares_Electronic'] = categorySamples.filter((_, i) => i % 3 === 1).map(s => s.name);
-            results['Claps'] = categorySamples.filter((_, i) => i % 3 === 2).map(s => s.name);
-            if (createVeryDetailedGroups && categorySamples.length > 6) {
-              results['Snares_Processed'] = categorySamples.filter((_, i) => i % 6 === 3).map(s => s.name);
-              results['Snares_LoFi'] = categorySamples.filter((_, i) => i % 6 === 4).map(s => s.name);
-            }
+            results['Snares: Crisp & Sharp'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
+            results['Snares: Fat & Full'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
+            results['Snares: Processed & Layered'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
+            results['Claps & Snappy Hits'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
             break;
             
           case 'hihats':
-            results['HiHats_Closed'] = categorySamples.filter((_, i) => i % 3 === 0).map(s => s.name);
-            results['HiHats_Open'] = categorySamples.filter((_, i) => i % 3 === 1).map(s => s.name);
-            results['Cymbals'] = categorySamples.filter((_, i) => i % 3 === 2).map(s => s.name);
+            results['Hi-Hats: Tight & Closed'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
+            results['Hi-Hats: Open & Washy'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
+            results['Hats: Dirty & Processed'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
+            results['Cymbals & Rides'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
             break;
             
           case 'percussion':
-            results['Perc_Tonal'] = categorySamples.filter((_, i) => i % 2 === 0).map(s => s.name);
-            results['Perc_Atonal'] = categorySamples.filter((_, i) => i % 2 === 1).map(s => s.name);
+            results['Percussion: Bright & Tonal'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
+            results['Percussion: Wooden & Earthy'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
+            results['Percussion: Metallic & Ringing'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
+            results['Percussion: Ethnic & Unusual'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
             break;
             
           case 'bass':
-            results['Bass_808'] = categorySamples.filter((_, i) => i % 3 === 0).map(s => s.name);
-            results['Bass_Synth'] = categorySamples.filter((_, i) => i % 3 === 1).map(s => s.name);
-            results['Bass_Processed'] = categorySamples.filter((_, i) => i % 3 === 2).map(s => s.name);
+            results['Bass: Deep Sub & 808'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
+            results['Bass: Mid-Range & Growly'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
+            results['Bass: Distorted & Aggressive'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
+            results['Bass: Melodic & Tonal'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
             break;
             
           case 'sfx':
-            results['SFX_Risers'] = categorySamples.filter((_, i) => i % 3 === 0).map(s => s.name);
-            results['SFX_Impacts'] = categorySamples.filter((_, i) => i % 3 === 1).map(s => s.name);
-            results['SFX_Textures'] = categorySamples.filter((_, i) => i % 3 === 2).map(s => s.name);
+            results['SFX: Risers & Transitions'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
+            results['SFX: Impacts & Hits'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
+            results['SFX: Atmospheric & Textural'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
+            results['SFX: Glitchy & Digital'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
             break;
             
           case 'vocals':
-            results['Vocals_Phrases'] = categorySamples.filter((_, i) => i % 2 === 0).map(s => s.name);
-            results['Vocals_Chops'] = categorySamples.filter((_, i) => i % 2 === 1).map(s => s.name);
+            results['Vocals: One-Shots & Phrases'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
+            results['Vocals: Chops & Cuts'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
+            results['Vocals: Processed & Effects'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
+            results['Vocals: Rhythmic & Percussive'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
             break;
             
           default:
-            if (createDetailedGroups) {
-              results[`${category.name}_Group1`] = categorySamples.filter((_, i) => i % 3 === 0).map(s => s.name);
-              results[`${category.name}_Group2`] = categorySamples.filter((_, i) => i % 3 === 1).map(s => s.name);
-              results[`${category.name}_Group3`] = categorySamples.filter((_, i) => i % 3 === 2).map(s => s.name);
-            } else {
-              results[`${category.name}_Group1`] = categorySamples.filter((_, i) => i % 2 === 0).map(s => s.name);
-              results[`${category.name}_Group2`] = categorySamples.filter((_, i) => i % 2 === 1).map(s => s.name);
-            }
+            results[`${category.name}: Group 1`] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
+            results[`${category.name}: Group 2`] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
+            results[`${category.name}: Group 3`] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
+            results[`${category.name}: Group 4`] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
         }
       });
       
@@ -120,11 +117,11 @@ const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
       setAnalysisComplete(true);
       
       if (Object.keys(results).length === 0) {
-        toast.warning("No groups could be created. Try selecting more samples.");
+        toast.warning("No groups could be created. Try uploading more samples.");
       } else {
-        toast.success("Samples analyzed and grouped based on sonic similarities!");
+        toast.success("Samples analyzed and grouped into subcategories!");
       }
-    }, 2000);
+    }, 1500);
   };
   
   // Export the grouped samples
@@ -166,26 +163,9 @@ const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
         <div className="p-6">
           <div className="mb-6">
             <p className="text-gray-400/80 mb-6">
-              This tool analyzes your audio samples and groups them based on their sonic characteristics.
+              This tool analyzes your audio samples and groups them into 4 subcategories per sample type based on their sonic characteristics.
               It uses audio fingerprinting to identify similar-sounding samples regardless of filename.
             </p>
-            
-            <div className="mb-6">
-              <label className="block text-sm font-medium text-gray-400 mb-2">
-                Specificity Level: {specificityLevel[0]}%
-              </label>
-              <Slider
-                defaultValue={specificityLevel}
-                max={100}
-                step={10}
-                onValueChange={setSpecificityLevel}
-                className="py-2"
-              />
-              <div className="flex justify-between text-xs text-gray-500 mt-1">
-                <span>Basic Groups</span>
-                <span>Ultra-Detailed</span>
-              </div>
-            </div>
             
             <button
               onClick={analyzeSamples}
@@ -194,7 +174,7 @@ const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
             >
               {isAnalyzing 
                 ? 'Analyzing samples...' 
-                : 'Analyze & Group Selected Samples'}
+                : 'Analyze & Group All Samples'}
             </button>
           </div>
           

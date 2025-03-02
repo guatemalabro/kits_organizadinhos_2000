@@ -6,16 +6,11 @@ import { toast } from 'sonner';
 
 const SubLabelsButton: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const { selectedSamplesCount, samples } = useSampleContext();
+  const { samples } = useSampleContext();
   
   const handleButtonClick = () => {
     if (samples.length === 0) {
       toast.error("Please upload some audio samples first");
-      return;
-    }
-    
-    if (selectedSamplesCount === 0) {
-      toast.error("Please select at least one category before using audio similarity grouping");
       return;
     }
     
@@ -26,7 +21,7 @@ const SubLabelsButton: React.FC = () => {
     <>
       <button
         onClick={handleButtonClick}
-        className="w-full px-4 py-3 mt-6 rounded-lg bg-zinc-800/80 hover:bg-zinc-700/80 text-gray-400 font-medium transition-colors border border-zinc-700/30 hover:border-zinc-600/60 focus-ring shadow-md hover:shadow-lg vhs-border flex items-center justify-center"
+        className="w-full px-4 py-3 mt-2 rounded-lg bg-zinc-800/80 hover:bg-zinc-700/80 text-gray-300 font-medium transition-colors border border-zinc-700/30 hover:border-zinc-600/60 focus-ring shadow-md hover:shadow-lg vhs-border flex items-center justify-center"
       >
         <div className="mr-2 w-5 h-5 bg-zinc-700 rounded-full flex items-center justify-center">
           <svg xmlns="http://www.w3.org/2000/svg" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-orange-400">

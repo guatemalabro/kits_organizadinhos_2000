@@ -34,10 +34,9 @@ const Index = () => {
               <div className="vhs-border rounded-lg overflow-hidden glass-dark mb-6">
                 <CategorySelector />
               </div>
-              <div className="vhs-border rounded-lg overflow-hidden glass-dark">
-                <div className="p-4">
-                  <SubLabelsButton />
-                </div>
+              <div className="vhs-border rounded-lg overflow-hidden glass-dark p-4">
+                <h3 className="text-lg font-medium tracking-tighter mb-4 text-gray-300">Audio Analysis Tools</h3>
+                <SubLabelsButton />
               </div>
             </div>
             
