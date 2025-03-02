@@ -31,6 +31,8 @@ interface SampleContextType {
   analyzedCount: number;
   totalSamples: number;
   selectedSamplesCount: number;
+  showSubLabelsPanel: boolean;
+  setShowSubLabelsPanel: (show: boolean) => void;
   getFilteredSamples: () => Sample[];
   currentlyPlayingSample: string | null;
   addSamples: (files: File[]) => void;
@@ -71,20 +73,18 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [analyzedCount, setAnalyzedCount] = useState(0);
   const [totalSamples, setTotalSamples] = useState(0);
   const [currentlyPlayingSample, setCurrentlyPlayingSample] = useState<string | null>(null);
+  const [showSubLabelsPanel, setShowSubLabelsPanel] = useState(false);
 
-  // Get filtered samples based on selected categories
   const getFilteredSamples = useCallback(() => {
     return samples.filter(sample => 
       categories.find(cat => cat.id === sample.category.id)?.selected
     );
   }, [samples, categories]);
 
-  // Get count of samples in a specific category
   const getCategoryCount = useCallback((categoryId: string) => {
     return samples.filter(sample => sample.category.id === categoryId).length;
   }, [samples]);
 
-  // Update category counts after sample analysis
   const updateCategoryCounts = useCallback(() => {
     setCategories(prev => 
       prev.map(category => ({
@@ -94,7 +94,6 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     );
   }, [samples]);
 
-  // Enhanced sample analysis with more accurate categorization
   const analyzeSamples = useCallback(async (files: File[]) => {
     setIsAnalyzing(true);
     setTotalSamples(files.length);
@@ -464,6 +463,7 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setIsAnalyzing(false);
     setIsExporting(false);
     setCurrentlyPlayingSample(null);
+    setShowSubLabelsPanel(false);
   }, []);
 
   // Get the accurate count of samples that will be exported
@@ -479,6 +479,8 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     analyzedCount,
     totalSamples,
     selectedSamplesCount,
+    showSubLabelsPanel,
+    setShowSubLabelsPanel,
     getFilteredSamples,
     currentlyPlayingSample,
     addSamples,

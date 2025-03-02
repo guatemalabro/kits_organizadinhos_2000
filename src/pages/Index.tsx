@@ -34,9 +34,12 @@ const Index = () => {
               <div className="vhs-border rounded-lg overflow-hidden glass-dark mb-6">
                 <CategorySelector />
               </div>
-              <div className="vhs-border rounded-lg overflow-hidden glass-dark p-4">
-                <h3 className="text-lg font-medium tracking-tighter mb-4 text-gray-300">Audio Analysis Tools</h3>
+              <div className="vhs-border rounded-lg overflow-hidden glass-dark p-5 bg-gradient-to-b from-zinc-900/50 to-zinc-950/70">
+                <h3 className="text-xl font-medium tracking-tighter mb-4 text-orange-300">Audio Analysis Tools</h3>
                 <SubLabelsButton />
+                <p className="text-xs text-gray-500 mt-4 text-center">
+                  Automatically group samples by audio fingerprint and sonic characteristics
+                </p>
               </div>
             </div>
             
