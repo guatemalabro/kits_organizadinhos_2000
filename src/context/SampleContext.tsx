@@ -94,7 +94,7 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     );
   }, [samples]);
 
-  // Improved sample analysis with more accurate categorization
+  // Enhanced sample analysis with more accurate categorization
   const analyzeSamples = useCallback(async (files: File[]) => {
     setIsAnalyzing(true);
     setTotalSamples(files.length);
@@ -114,110 +114,186 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       // Simulate analysis delay
       await new Promise(resolve => setTimeout(resolve, 50));
       
-      // More intelligent category assignment
+      // Improved category assignment logic
       const fileName = file.name.toLowerCase();
+      const filePath = file.webkitRelativePath?.toLowerCase() || '';
       let categoryId = 'other';
       
-      // More precise audio categorization with enhanced filtering
+      // ENHANCED AUDIO CATEGORIZATION WITH STRICTER RULES
       
-      // 1. Bass detection - catch only true bass sounds, avoid crashes
+      // Process file paths for better context
+      const pathParts = filePath.split('/').filter(Boolean);
+      const folderContext = pathParts.join(' ').toLowerCase();
+      
+      // Crash detection - must come first to catch cymbals and crashes before other rules
       if (
-        (/\bbass\b/.test(fileName) || /\bsub\b/.test(fileName) || /\b808\b/.test(fileName)) && 
-        !(/crash/i.test(fileName) || /cymbal/i.test(fileName) || /hat/i.test(fileName) || /noise/i.test(fileName))
+        /crash/i.test(fileName) || 
+        /cymbal/i.test(fileName) || 
+        /ride/i.test(fileName) ||
+        (/\bcr\b/.test(fileName) && !/crowd/i.test(fileName))
       ) {
-        // Only pure bass sounds go here
-        categoryId = 'bass';
+        categoryId = 'hihats'; // Cymbals and crashes belong with hi-hats
       }
-      // 2. Kick detection with clear boundary cases
+      // Hi-hat detection - specifically look for hi-hat related terms
       else if (
-        (/\bkick\b/.test(fileName) || /\bbd\b/.test(fileName) || /\bbass\s*drum\b/.test(fileName)) && 
-        !(/snare/i.test(fileName) || /clap/i.test(fileName) || /hat/i.test(fileName))
-      ) {
-        categoryId = 'kicks';
-      }
-      // 3. Snare and clap detection
-      else if (
-        /\bsnare\b/.test(fileName) || /\bclap\b/.test(fileName) || /\brimshot\b/.test(fileName) || 
-        /\bsd\b/.test(fileName) || (/\bsn\b/.test(fileName) && !/snare/i.test(fileName))
-      ) {
-        categoryId = 'snares';
-      }
-      // 4. Hi-hat detection - specifically look for hi-hat related terms
-      else if (
-        /\bhi[\s-]?hat\b/.test(fileName) || /\bhat\b/.test(fileName) || /\bhh\b/.test(fileName) ||
-        /\bclosed\b/.test(fileName) || /\bopen\b/.test(fileName) || /\bcymbal\b/.test(fileName) ||
-        /\bcrash\b/.test(fileName) || /\bride\b/.test(fileName)
+        /\bhi[\s-]?hat\b/i.test(fileName) || 
+        /\bhh\b/.test(fileName) ||
+        /\bhat\b/i.test(fileName) && !/\that\b/i.test(fileName) ||
+        /\bopen\b/.test(fileName) && !/\bopen\s+loop\b/i.test(fileName) ||
+        /\bclosed\b/.test(fileName)
       ) {
         categoryId = 'hihats';
       }
-      // 5. Percussion detection
+      // Kick detection with strict boundary cases
       else if (
-        /\bperc\b/.test(fileName) || /\bconga\b/.test(fileName) || /\bbongo\b/.test(fileName) ||
-        /\btom\b/.test(fileName) || /\bshaker\b/.test(fileName) || /\btamb(ourine)?\b/.test(fileName) ||
-        /\bcajon\b/.test(fileName) || /\btriangle\b/.test(fileName) || /\bdjembe\b/.test(fileName)
+        (/\bkick\b/i.test(fileName) || /\bbd\b/.test(fileName) || /\bbass\s*drum\b/i.test(fileName)) && 
+        !(/snare/i.test(fileName) || /clap/i.test(fileName))
+      ) {
+        categoryId = 'kicks';
+      }
+      // Snare and clap detection
+      else if (
+        /\bsnare\b/i.test(fileName) || 
+        /\bclap\b/i.test(fileName) || 
+        /\brimshot\b/i.test(fileName) || 
+        /\bsd\b/.test(fileName) || 
+        (/\bsn\b/.test(fileName) && !/snare/i.test(fileName))
+      ) {
+        categoryId = 'snares';
+      }
+      // Bass detection - catch only true bass sounds, avoid percussion
+      else if (
+        (/\bbass\b/i.test(fileName) && !/\bbass\s+drum\b/i.test(fileName)) || 
+        /\bsub\b/i.test(fileName) || 
+        (/\b808\b/.test(fileName) && !/808\s+crash/i.test(fileName) && !/808\s+hat/i.test(fileName) && !/808\s+cymbal/i.test(fileName))
+      ) {
+        // Only pure bass sounds go here, not percussion
+        categoryId = 'bass';
+      }
+      // Percussion detection
+      else if (
+        /\bperc\b/i.test(fileName) || 
+        /\bconga\b/i.test(fileName) || 
+        /\bbongo\b/i.test(fileName) ||
+        /\btom\b/i.test(fileName) || 
+        /\bshaker\b/i.test(fileName) || 
+        /\btamb(ourine)?\b/i.test(fileName) ||
+        /\bcajon\b/i.test(fileName) || 
+        /\btriangle\b/i.test(fileName) || 
+        /\bdjembe\b/i.test(fileName) ||
+        /\btimpani\b/i.test(fileName) || 
+        /\btabla\b/i.test(fileName)
       ) {
         categoryId = 'percussion';
       }
-      // 6. SFX detection
+      // SFX detection
       else if (
-        /\bfx\b/.test(fileName) || /\bsfx\b/.test(fileName) || /\bnoise\b/.test(fileName) ||
-        /\briser\b/.test(fileName) || /\bsweep\b/.test(fileName) || /\bimpact\b/.test(fileName) ||
-        /\bwhoosh\b/.test(fileName) || /\btexture\b/.test(fileName) || /\bambient\b/.test(fileName) ||
-        /\btransition\b/.test(fileName) || /\bfoley\b/.test(fileName)
+        /\bfx\b/i.test(fileName) || 
+        /\bsfx\b/i.test(fileName) || 
+        /\bnoise\b/i.test(fileName) ||
+        /\briser\b/i.test(fileName) || 
+        /\bsweep\b/i.test(fileName) || 
+        /\bimpact\b/i.test(fileName) ||
+        /\bwhoosh\b/i.test(fileName) || 
+        /\btexture\b/i.test(fileName) || 
+        /\bambient\b/i.test(fileName) ||
+        /\btransition\b/i.test(fileName) || 
+        /\bfoley\b/i.test(fileName) ||
+        /\bhit\b/i.test(fileName) && !/hithat/i.test(fileName)
       ) {
         categoryId = 'sfx';
       }
-      // 7. Vocal detection
+      // Vocal detection
       else if (
-        /\bvocal\b/.test(fileName) || /\bvox\b/.test(fileName) || /\bvoice\b/.test(fileName) ||
-        /\bsing\b/.test(fileName) || /\btalk\b/.test(fileName) || /\bcry\b/.test(fileName) ||
-        /\bspeak\b/.test(fileName) || /\bscream\b/.test(fileName) || /\bchant\b/.test(fileName)
+        /\bvocal\b/i.test(fileName) || 
+        /\bvox\b/i.test(fileName) || 
+        /\bvoice\b/i.test(fileName) ||
+        /\bsing\b/i.test(fileName) || 
+        /\btalk\b/i.test(fileName) || 
+        /\bcry\b/i.test(fileName) ||
+        /\bspeak\b/i.test(fileName) || 
+        /\bscream\b/i.test(fileName) || 
+        /\bchant\b/i.test(fileName) ||
+        /\bsay\b/i.test(fileName) || 
+        /\bword\b/i.test(fileName) || 
+        /\bshout\b/i.test(fileName)
       ) {
         categoryId = 'vocals';
       }
-      // 8. Spectral analysis based categorization
-      else {
-        // Perform additional checks based on folder structure or other metadata
-        const filePath = file.webkitRelativePath || '';
-        const pathParts = filePath.toLowerCase().split('/');
-        
-        // Folder-based classification
+      
+      // Folder-based classification for edge cases
+      if (categoryId === 'other') {
         for (const part of pathParts) {
-          if (/kick/i.test(part) && !/snare|hat|cymbal/i.test(part)) {
-            categoryId = 'kicks';
-            break;
-          } else if (/snare|clap/i.test(part) && !/kick|hat|cymbal/i.test(part)) {
-            categoryId = 'snares';
-            break;
-          } else if (/hat|cymbal|crash|ride/i.test(part) && !/kick|snare/i.test(part)) {
+          if (/\bcymbal|\bcrash|\bride/i.test(part)) {
             categoryId = 'hihats';
             break;
-          } else if (/perc/i.test(part) && !/kick|snare|hat/i.test(part)) {
+          } else if (/\bhihat|\bhi[\s-]?hat|\bhh|\bhat/i.test(part) && !/\bhat\b/i.test(part)) {
+            categoryId = 'hihats';
+            break;
+          } else if (/\bkick|\bkik|\bbd|\bbass\s*drum/i.test(part) && !/snare|hat|cymbal/i.test(part)) {
+            categoryId = 'kicks';
+            break;
+          } else if (/\bsnare|\bclap|\brimshot|\bsd|\bsn/i.test(part) && !/kick|hat|cymbal/i.test(part)) {
+            categoryId = 'snares';
+            break;
+          } else if (/\bperc|\bconga|\bbongo|\btom|\btabla/i.test(part) && !/kick|snare|hat/i.test(part)) {
             categoryId = 'percussion';
             break;
-          } else if (/bass|sub|808/i.test(part) && !/kick|drum|snare|hat|cymbal/i.test(part)) {
+          } else if (/\bbass|\bsub|\b808/i.test(part) && !/kick|drum|snare|hat|cymbal|crash/i.test(part)) {
             categoryId = 'bass';
             break;
-          } else if (/fx|effect|ambient|texture|foley/i.test(part)) {
+          } else if (/\bfx|\beffect|\bambient|\btexture|\bfoley|\briser|\bsweep/i.test(part)) {
             categoryId = 'sfx';
             break;
-          } else if (/vox|vocal|voice|sing|chant/i.test(part)) {
+          } else if (/\bvox|\bvocal|\bvoice|\bsing|\bchant/i.test(part)) {
             categoryId = 'vocals';
             break;
           }
         }
+      }
+      
+      // Create simulated frequency content analysis (in a real app this would be actual audio analysis)
+      // This code simulates spectral analysis to determine if a sound contains mostly low frequency content
+      const simulateSpectralAnalysis = (filename: string): { 
+        isLowFreq: boolean, 
+        isMidFreq: boolean,
+        isHighFreq: boolean,
+        isPercussive: boolean 
+      } => {
+        const lowFreqTerms = ['bass', 'sub', '808', 'low', 'deep', 'boom', 'rumble'];
+        const highFreqTerms = ['hat', 'cymbal', 'crash', 'ride', 'sizzle', 'high', 'hh', 'hi'];
+        const percussiveTerms = ['perc', 'conga', 'bongo', 'tom', 'tabla', 'drum', 'hit'];
         
-        // Fallback to extension-based hints for audio types
-        if (categoryId === 'other') {
-          // Check filename for additional clues
-          if (fileName.includes('808') && !fileName.includes('hat') && !fileName.includes('cymbal')) {
-            categoryId = 'bass'; // Most 808s are bass sounds
-          } else if (fileName.includes('hit') || fileName.includes('impact')) {
-            categoryId = 'sfx';
-          } else if (fileName.includes('loop') && (fileName.includes('drum') || fileName.includes('beat'))) {
+        const name = filename.toLowerCase();
+        const isLowFreq = lowFreqTerms.some(term => name.includes(term));
+        const isHighFreq = highFreqTerms.some(term => name.includes(term));
+        const isPercussive = percussiveTerms.some(term => name.includes(term));
+        const isMidFreq = !isLowFreq && !isHighFreq;
+        
+        return { isLowFreq, isMidFreq, isHighFreq, isPercussive };
+      };
+      
+      // Apply spectral analysis for edge cases
+      if (categoryId === 'other') {
+        const spectralProfile = simulateSpectralAnalysis(fileName);
+        
+        // Use spectral analysis for further classification
+        if (spectralProfile.isHighFreq) {
+          categoryId = 'hihats';
+        } else if (spectralProfile.isLowFreq && !spectralProfile.isPercussive) {
+          categoryId = 'bass';
+        } else if (spectralProfile.isPercussive) {
+          if (spectralProfile.isLowFreq) {
+            categoryId = 'kicks';
+          } else {
             categoryId = 'percussion';
           }
         }
+      }
+      
+      // Special case for 808 crashes - they must go to hi-hats, not bass
+      if (/808\s+crash/i.test(fileName) || /808\s+cymbal/i.test(fileName)) {
+        categoryId = 'hihats';
       }
       
       // Get matching category
@@ -227,7 +303,7 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const categoryIndex = tempCategories.findIndex(cat => cat.id === categoryId);
       tempCategories[categoryIndex].count++;
       
-      // Create new sample
+      // Create new sample with more accurate analytics
       const newSample: Sample = {
         id: `sample-${Date.now()}-${i}`,
         name: file.name,
