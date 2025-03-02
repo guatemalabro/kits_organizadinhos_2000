@@ -1,4 +1,3 @@
-
 import React, { useCallback, useState } from 'react';
 import { useSampleContext } from '@/context/SampleContext';
 import { toast } from 'sonner';

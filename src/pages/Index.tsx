@@ -11,7 +11,7 @@ import { SampleProvider } from '@/context/SampleContext';
 const Index = () => {
   return (
     <SampleProvider>
-      <div className="flex flex-col min-h-screen bg-zinc-950 bg-gradient-to-b from-zinc-950 to-zinc-900 bg-noise bg-opacity-50">
+      <div className="flex flex-col min-h-screen bg-zinc-950 bg-gradient-to-b from-zinc-950 to-zinc-900 bg-opacity-50">
         <Header />
         
         <main className="flex-grow container-content py-10">
