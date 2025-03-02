@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect, MouseEvent } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { useSampleContext } from '@/context/SampleContext';
 import { toast } from 'sonner';
 
@@ -8,13 +8,31 @@ const SubLabelsPanel: React.FC = () => {
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [groupingResults, setGroupingResults] = useState<Record<string, string[]>>({});
   const [selectedGroup, setSelectedGroup] = useState<string | null>(null);
+  const panelRef = useRef<HTMLDivElement>(null);
   
   // Automatically analyze samples when panel opens
   useEffect(() => {
     if (showSubLabelsPanel && samples.length > 0) {
       analyzeSamples();
     }
-  }, [showSubLabelsPanel]);
+    
+    // Add event listener to handle clicks outside
+    const handleClickOutside = (event: MouseEvent) => {
+      if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
+        // Only close if we click outside
+        setShowSubLabelsPanel(false);
+      }
+    };
+    
+    // Add global click listener when panel is open
+    if (showSubLabelsPanel) {
+      document.addEventListener('mousedown', handleClickOutside);
+    }
+    
+    return () => {
+      document.removeEventListener('mousedown', handleClickOutside);
+    };
+  }, [showSubLabelsPanel, samples, setShowSubLabelsPanel]);
   
   // Generate subgroups based on sonic characteristics
   const analyzeSamples = () => {
@@ -151,34 +169,30 @@ const SubLabelsPanel: React.FC = () => {
   
   const groupNames = Object.keys(groupingResults);
   
-  const handleOverlayClick = (e: MouseEvent) => {
+  // Prevent event propagation for closing
+  const handleContainerClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+  };
+  
+  const handleCloseClick = () => {
     setShowSubLabelsPanel(false);
   };
   
-  const handlePanelClick = (e: MouseEvent) => {
-    e.stopPropagation();
-  };
-  
   return (
-    <div 
-      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
-      onClick={handleOverlayClick}
-    >
-      <div 
-        className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
-      />
+    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden" onClick={handleContainerClick}>
+      <div className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" />
       
       <div 
+        ref={panelRef}
         className="fixed inset-4 z-50 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl vhs-border flex flex-col max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]"
-        onClick={handlePanelClick}
+        onClick={handleContainerClick}
       >
         <div className="p-4 md:p-6 border-b border-zinc-800 flex justify-between items-center sticky top-0 bg-zinc-900 z-10">
           <h2 className="text-xl md:text-2xl font-bold text-orange-400 vhs-text" data-text="Audio Similarity Analysis">
             Audio Similarity Analysis
           </h2>
           <button 
-            onClick={handleOverlayClick}
+            onClick={handleCloseClick}
             className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 transition-colors"
             aria-label="Close"
           >
