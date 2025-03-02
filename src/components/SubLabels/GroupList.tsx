@@ -29,7 +29,8 @@ const GroupList: React.FC<GroupListProps> = ({
         </p>
         <button 
           onClick={(e) => {
-            e.stopPropagation();
+            e.preventDefault(); // Prevent default
+            e.stopPropagation(); // Stop propagation
             analyzeSamples();
           }}
           className="mt-4 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-md text-sm text-gray-300"
@@ -46,7 +47,8 @@ const GroupList: React.FC<GroupListProps> = ({
         <button
           key={groupName}
           onClick={(e) => {
-            e.stopPropagation();
+            e.preventDefault(); // Prevent default
+            e.stopPropagation(); // Stop propagation
             setSelectedGroup(groupName);
           }}
           className={`w-full text-left p-4 rounded-md transition-colors cursor-pointer ${
