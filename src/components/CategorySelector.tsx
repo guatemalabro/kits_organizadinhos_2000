@@ -1,7 +1,6 @@
-
 import React from 'react';
 import { useSampleContext } from '@/context/SampleContext';
-import { SampleCategory } from '@/context/SampleContext';
+import { SampleCategory } from '@/types/sample';
 
 const CategorySelector: React.FC = () => {
   const { 

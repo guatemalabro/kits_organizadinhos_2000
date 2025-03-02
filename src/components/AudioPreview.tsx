@@ -1,7 +1,6 @@
-
 import React, { useMemo } from 'react';
 import { useSampleContext } from '@/context/SampleContext';
-import { Sample } from '@/context/SampleContext';
+import { Sample } from '@/types/sample';
 
 const formatDuration = (seconds: number | undefined): string => {
   if (!seconds) return '0:00';
