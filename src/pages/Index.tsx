@@ -15,11 +15,11 @@ const Index = () => {
         <Header />
         
         <main className="flex-grow container-content py-10">
-          <div className="mb-10 text-center">
+          <div className="mb-10 text-center vhs-glitch">
             <h2 className="text-3xl font-bold mb-3 text-transparent bg-clip-text bg-gradient-to-r from-green-400 to-green-500 drop-shadow-[0_0_8px_rgba(74,222,128,0.7)] matrix-glow">
               Organize Your Samples
             </h2>
-            <p className="text-gray-300/70 text-lg">
+            <p className="text-gray-300/70 text-lg vhs-text" data-text="Upload your audio samples, let the analyzer categorize them, and export only what you need.">
               Upload your audio samples, let the analyzer categorize them, and export only what you need.
             </p>
           </div>

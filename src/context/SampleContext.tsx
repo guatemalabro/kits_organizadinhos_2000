@@ -114,153 +114,109 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       // Simulate analysis delay
       await new Promise(resolve => setTimeout(resolve, 50));
       
-      // More intelligent category assignment based on detailed filename patterns
+      // More intelligent category assignment
       const fileName = file.name.toLowerCase();
       let categoryId = 'other';
       
-      // Define pattern checks with stronger boundaries to prevent false matches
-      const patternChecks = [
-        // Kick patterns - make sure to exclude patterns that might be confused with other categories
-        { 
-          category: 'kicks', 
-          patterns: [
-            /\bkick\b/,
-            /\bbd\b/,
-            /\bbass\s*drum\b/,
-            /\b808\s*kick\b/,
-            /\bkik\b/
-          ],
-          excludePatterns: [/\bsn\b/, /\bsnare\b/, /\bhat\b/, /\bcymbal\b/, /\bperc\b/]
-        },
-        // Snare patterns
-        { 
-          category: 'snares', 
-          patterns: [
-            /\bsnare\b/, 
-            /\bclap\b/, 
-            /\brim\b/, 
-            /\bsd\b/, 
-            /\bsn\b/,
-            /\bsnr\b/,
-            /\bslap\b/
-          ],
-          excludePatterns: [/\bkick\b/, /\bhat\b/, /\bcymbal\b/]
-        },
-        // Hi-hat patterns
-        { 
-          category: 'hihats', 
-          patterns: [
-            /\bhat\b/, 
-            /\bhh\b/, 
-            /\bhi\b/,
-            /\bhi[-\s]?hat\b/, 
-            /\bcymbal\b/, 
-            /\bcym\b/, 
-            /\bcmbl\b/, 
-            /\bclosed\b/, 
-            /\bopen\b/, 
-            /\btick\b/
-          ],
-          excludePatterns: [/\bkick\b/, /\bsnare\b/]
-        },
-        // Percussion patterns
-        { 
-          category: 'percussion', 
-          patterns: [
-            /\btom\b/, 
-            /\bperc\b/, 
-            /\bconga\b/, 
-            /\bbongo\b/, 
-            /\btamb\b/, 
-            /\bshaker\b/, 
-            /\bblock\b/, 
-            /\btriangle\b/, 
-            /\bdrum\b/, 
-            /\bcajon\b/, 
-            /\btimbale\b/
-          ],
-          excludePatterns: [/\bkick\b/, /\bsnare\b/, /\bhat\b/]
-        },
-        // Bass patterns (excluding drum patterns)
-        { 
-          category: 'bass', 
-          patterns: [
-            /\bbass\b/, 
-            /\bsub\b/, 
-            /\b808\b/
-          ],
-          excludePatterns: [/\bdrum\b/, /\bkick\b/]
-        },
-        // SFX patterns
-        { 
-          category: 'sfx', 
-          patterns: [
-            /\bfx\b/, 
-            /\briser\b/, 
-            /\bdown\b/, 
-            /\bsweep\b/, 
-            /\bimpact\b/, 
-            /\bwhoosh\b/, 
-            /\bsfx\b/, 
-            /\beffect\b/, 
-            /\btexture\b/, 
-            /\bnoize\b/, 
-            /\bnoise\b/, 
-            /\bambient\b/, 
-            /\batmos\b/
-          ],
-          excludePatterns: [/\bkick\b/, /\bsnare\b/, /\bhat\b/, /\bbass\b/]
-        },
-        // Vocal patterns
-        { 
-          category: 'vocals', 
-          patterns: [
-            /\bvox\b/, 
-            /\bvocal\b/, 
-            /\bvoice\b/, 
-            /\bspeak\b/, 
-            /\btalk\b/, 
-            /\bsing\b/, 
-            /\bchant\b/, 
-            /\bchoir\b/, 
-            /\bhuman\b/, 
-            /\bscream\b/, 
-            /\bshout\b/
-          ],
-          excludePatterns: []
-        }
-      ];
+      // More precise audio categorization with enhanced filtering
       
-      // First pass: check for exact matches
-      let matched = false;
-      for (const check of patternChecks) {
-        // Skip if any exclude pattern matches
-        if (check.excludePatterns.some(pattern => pattern.test(fileName))) {
-          continue;
+      // 1. Bass detection - catch only true bass sounds, avoid crashes
+      if (
+        (/\bbass\b/.test(fileName) || /\bsub\b/.test(fileName) || /\b808\b/.test(fileName)) && 
+        !(/crash/i.test(fileName) || /cymbal/i.test(fileName) || /hat/i.test(fileName) || /noise/i.test(fileName))
+      ) {
+        // Only pure bass sounds go here
+        categoryId = 'bass';
+      }
+      // 2. Kick detection with clear boundary cases
+      else if (
+        (/\bkick\b/.test(fileName) || /\bbd\b/.test(fileName) || /\bbass\s*drum\b/.test(fileName)) && 
+        !(/snare/i.test(fileName) || /clap/i.test(fileName) || /hat/i.test(fileName))
+      ) {
+        categoryId = 'kicks';
+      }
+      // 3. Snare and clap detection
+      else if (
+        /\bsnare\b/.test(fileName) || /\bclap\b/.test(fileName) || /\brimshot\b/.test(fileName) || 
+        /\bsd\b/.test(fileName) || (/\bsn\b/.test(fileName) && !/snare/i.test(fileName))
+      ) {
+        categoryId = 'snares';
+      }
+      // 4. Hi-hat detection - specifically look for hi-hat related terms
+      else if (
+        /\bhi[\s-]?hat\b/.test(fileName) || /\bhat\b/.test(fileName) || /\bhh\b/.test(fileName) ||
+        /\bclosed\b/.test(fileName) || /\bopen\b/.test(fileName) || /\bcymbal\b/.test(fileName) ||
+        /\bcrash\b/.test(fileName) || /\bride\b/.test(fileName)
+      ) {
+        categoryId = 'hihats';
+      }
+      // 5. Percussion detection
+      else if (
+        /\bperc\b/.test(fileName) || /\bconga\b/.test(fileName) || /\bbongo\b/.test(fileName) ||
+        /\btom\b/.test(fileName) || /\bshaker\b/.test(fileName) || /\btamb(ourine)?\b/.test(fileName) ||
+        /\bcajon\b/.test(fileName) || /\btriangle\b/.test(fileName) || /\bdjembe\b/.test(fileName)
+      ) {
+        categoryId = 'percussion';
+      }
+      // 6. SFX detection
+      else if (
+        /\bfx\b/.test(fileName) || /\bsfx\b/.test(fileName) || /\bnoise\b/.test(fileName) ||
+        /\briser\b/.test(fileName) || /\bsweep\b/.test(fileName) || /\bimpact\b/.test(fileName) ||
+        /\bwhoosh\b/.test(fileName) || /\btexture\b/.test(fileName) || /\bambient\b/.test(fileName) ||
+        /\btransition\b/.test(fileName) || /\bfoley\b/.test(fileName)
+      ) {
+        categoryId = 'sfx';
+      }
+      // 7. Vocal detection
+      else if (
+        /\bvocal\b/.test(fileName) || /\bvox\b/.test(fileName) || /\bvoice\b/.test(fileName) ||
+        /\bsing\b/.test(fileName) || /\btalk\b/.test(fileName) || /\bcry\b/.test(fileName) ||
+        /\bspeak\b/.test(fileName) || /\bscream\b/.test(fileName) || /\bchant\b/.test(fileName)
+      ) {
+        categoryId = 'vocals';
+      }
+      // 8. Spectral analysis based categorization
+      else {
+        // Perform additional checks based on folder structure or other metadata
+        const filePath = file.webkitRelativePath || '';
+        const pathParts = filePath.toLowerCase().split('/');
+        
+        // Folder-based classification
+        for (const part of pathParts) {
+          if (/kick/i.test(part) && !/snare|hat|cymbal/i.test(part)) {
+            categoryId = 'kicks';
+            break;
+          } else if (/snare|clap/i.test(part) && !/kick|hat|cymbal/i.test(part)) {
+            categoryId = 'snares';
+            break;
+          } else if (/hat|cymbal|crash|ride/i.test(part) && !/kick|snare/i.test(part)) {
+            categoryId = 'hihats';
+            break;
+          } else if (/perc/i.test(part) && !/kick|snare|hat/i.test(part)) {
+            categoryId = 'percussion';
+            break;
+          } else if (/bass|sub|808/i.test(part) && !/kick|drum|snare|hat|cymbal/i.test(part)) {
+            categoryId = 'bass';
+            break;
+          } else if (/fx|effect|ambient|texture|foley/i.test(part)) {
+            categoryId = 'sfx';
+            break;
+          } else if (/vox|vocal|voice|sing|chant/i.test(part)) {
+            categoryId = 'vocals';
+            break;
+          }
         }
         
-        // Check if any pattern matches
-        if (check.patterns.some(pattern => pattern.test(fileName))) {
-          categoryId = check.category;
-          matched = true;
-          break;
-        }
-      }
-      
-      // Second pass: check for partial matches if no exact match was found
-      if (!matched) {
-        // Try to infer based on file path if available
-        // For example, if the file is in a folder named "kicks", it's likely a kick
-        const pathParts = file.webkitRelativePath ? file.webkitRelativePath.toLowerCase().split('/') : [];
-        for (const part of pathParts) {
-          for (const check of patternChecks) {
-            if (check.patterns.some(pattern => pattern.test(part))) {
-              categoryId = check.category;
-              matched = true;
-              break;
-            }
+        // Fallback to extension-based hints for audio types
+        if (categoryId === 'other') {
+          // Check filename for additional clues
+          if (fileName.includes('808') && !fileName.includes('hat') && !fileName.includes('cymbal')) {
+            categoryId = 'bass'; // Most 808s are bass sounds
+          } else if (fileName.includes('hit') || fileName.includes('impact')) {
+            categoryId = 'sfx';
+          } else if (fileName.includes('loop') && (fileName.includes('drum') || fileName.includes('beat'))) {
+            categoryId = 'percussion';
           }
-          if (matched) break;
         }
       }
       
