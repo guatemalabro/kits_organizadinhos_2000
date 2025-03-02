@@ -7,7 +7,9 @@ import { toast } from 'sonner';
 const SubLabelsButton: React.FC = () => {
   const { samples, showSubLabelsPanel, setShowSubLabelsPanel } = useSampleContext();
   
-  const handleButtonClick = () => {
+  const handleButtonClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+    
     if (samples.length === 0) {
       toast.error("Please upload some audio samples first");
       return;

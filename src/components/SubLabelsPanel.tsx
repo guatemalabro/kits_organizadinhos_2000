@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect } from 'react';
 import { useSampleContext } from '@/context/SampleContext';
 import { toast } from 'sonner';
@@ -151,14 +152,15 @@ const SubLabelsPanel: React.FC = () => {
   const groupNames = Object.keys(groupingResults);
   
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center">
+    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
       <div 
         className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
         onClick={() => setShowSubLabelsPanel(false)}
       />
       
       <div 
-        className="fixed inset-2 z-50 bg-zinc-900 border border-zinc-800 rounded-xl overflow-hidden shadow-2xl vhs-border flex flex-col"
+        className="fixed inset-2 z-50 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl vhs-border flex flex-col"
+        style={{ maxHeight: '96vh', maxWidth: '96vw' }}
         onClick={(e) => e.stopPropagation()}
       >
         <div className="p-4 md:p-6 border-b border-zinc-800 flex justify-between items-center sticky top-0 bg-zinc-900 z-10">
@@ -166,7 +168,10 @@ const SubLabelsPanel: React.FC = () => {
             Audio Similarity Analysis
           </h2>
           <button 
-            onClick={() => setShowSubLabelsPanel(false)}
+            onClick={(e) => {
+              e.stopPropagation();
+              setShowSubLabelsPanel(false);
+            }}
             className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 transition-colors"
             aria-label="Close"
           >
@@ -177,7 +182,7 @@ const SubLabelsPanel: React.FC = () => {
           </button>
         </div>
         
-        <div className="flex flex-col md:flex-row h-[calc(100%-4rem)]">
+        <div className="flex flex-col md:flex-row h-[calc(100%-5rem)] overflow-hidden">
           {/* Left sidebar - Group list */}
           <div className="bg-zinc-950/50 border-r border-zinc-800 overflow-y-auto p-4 md:p-6 h-1/3 md:h-full md:w-1/3 lg:w-1/4">
             <h3 className="text-lg font-medium text-orange-300 mb-4 md:mb-6">Similarity Groups</h3>
@@ -199,18 +204,24 @@ const SubLabelsPanel: React.FC = () => {
               <div className="text-center py-8 text-gray-500">
                 <p>No groups available.</p>
                 <button 
-                  onClick={analyzeSamples}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    analyzeSamples();
+                  }}
                   className="mt-4 px-6 py-3 bg-zinc-800 hover:bg-zinc-700 rounded-md text-sm text-gray-300"
                 >
                   Run Analysis
                 </button>
               </div>
             ) : (
-              <div className="space-y-3 overflow-y-auto max-h-[calc(100vh-15rem)] md:max-h-[calc(100vh-12rem)] pr-2">
+              <div className="space-y-3 overflow-y-auto max-h-[calc(100vh-20rem)] md:max-h-[calc(100vh-15rem)] pr-2">
                 {groupNames.map((groupName) => (
                   <button
                     key={groupName}
-                    onClick={() => setSelectedGroup(groupName)}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      setSelectedGroup(groupName);
+                    }}
                     className={`w-full text-left p-3 rounded-md transition-colors cursor-pointer ${
                       selectedGroup === groupName 
                         ? 'bg-orange-500/20 border border-orange-500/40 text-orange-300' 
@@ -268,14 +279,20 @@ const SubLabelsPanel: React.FC = () => {
                 
                 <div className="flex flex-col space-y-4 mt-8">
                   <button
-                    onClick={exportGroups}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      exportGroups();
+                    }}
                     className="w-full py-3 md:py-4 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-medium transition-colors border border-orange-500/30 hover:border-orange-400/60 shadow-md hover:shadow-lg"
                   >
                     Export All Grouped Samples
                   </button>
                   
                   <button
-                    onClick={() => analyzeSamples()}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      analyzeSamples();
+                    }}
                     className="w-full py-2 md:py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-gray-300 font-medium transition-colors"
                   >
                     Re-analyze Samples
@@ -292,7 +309,10 @@ const SubLabelsPanel: React.FC = () => {
                   Upload audio samples and run the analysis to group them by sonic characteristics.
                 </p>
                 <button
-                  onClick={analyzeSamples}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    analyzeSamples();
+                  }}
                   className="px-6 py-3 rounded-lg bg-orange-600/80 hover:bg-orange-500/80 text-white font-medium transition-colors"
                 >
                   Start Analysis
