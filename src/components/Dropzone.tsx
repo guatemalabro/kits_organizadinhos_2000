@@ -3,7 +3,7 @@ import { useSampleContext } from '@/context/SampleContext';
 import { toast } from 'sonner';
 
 const Dropzone: React.FC = () => {
-  const { addSamples, isAnalyzing, samples } = useSampleContext();
+  const { addSamples, isAnalyzing, samples, analyzedCount, totalSamples } = useSampleContext();
   const [isDragging, setIsDragging] = useState(false);
   
   const processFiles = useCallback(
@@ -163,6 +163,11 @@ const Dropzone: React.FC = () => {
       fileInput.click();
     }
   }, []);
+
+  // Calculate the progress percentage
+  const uploadProgress = isAnalyzing && totalSamples > 0 
+    ? Math.round((analyzedCount / totalSamples) * 100) 
+    : 0;
   
   return (
     <div
@@ -180,7 +185,7 @@ const Dropzone: React.FC = () => {
       onClick={browseFiles}
     >
       {isAnalyzing ? (
-        <div className="flex flex-col items-center">
+        <div className="flex flex-col items-center w-full">
           <div className="flex space-x-1 mb-4">
             <div className="w-2 h-8 bg-primary/80 rounded-full animate-wave-1"></div>
             <div className="w-2 h-8 bg-primary/80 rounded-full animate-wave-2"></div>
@@ -188,8 +193,21 @@ const Dropzone: React.FC = () => {
             <div className="w-2 h-8 bg-primary/80 rounded-full animate-wave-4"></div>
             <div className="w-2 h-8 bg-primary/80 rounded-full animate-wave-5"></div>
           </div>
+          
           <p className="text-lg font-medium text-foreground">Analyzing samples...</p>
-          <p className="text-sm text-muted-foreground mt-2">This may take a moment</p>
+          
+          <div className="w-full max-w-xs mt-2 mb-1">
+            <div className="h-2 w-full bg-zinc-800 rounded-full overflow-hidden">
+              <div 
+                className="h-full bg-gradient-to-r from-green-500 to-green-400 vhs-glow rounded-full transition-all duration-200" 
+                style={{ width: `${uploadProgress}%` }}
+              ></div>
+            </div>
+          </div>
+          
+          <p className="text-sm text-muted-foreground mt-1">
+            <span className="text-green-400 font-medium">{analyzedCount}</span> of <span className="font-medium">{totalSamples}</span> samples processed
+          </p>
         </div>
       ) : samples.length > 0 ? (
         <div className="flex flex-col items-center">
@@ -231,8 +249,6 @@ const Dropzone: React.FC = () => {
         multiple
         onChange={handleFileInputChange}
         className="hidden"
-        webkitdirectory=""
-        directory=""
       />
     </div>
   );
