@@ -18,7 +18,7 @@ const SubLabelsPanel: React.FC = () => {
   
   // Automatically analyze samples when panel opens
   useEffect(() => {
-    if (showSubLabelsPanel && samples.length > 0) {
+    if (showSubLabelsPanel && samples.length > 0 && Object.keys(groupingResults).length === 0) {
       analyzeSamples();
     }
     
@@ -38,7 +38,7 @@ const SubLabelsPanel: React.FC = () => {
     return () => {
       document.removeEventListener('mousedown', handleClickOutside);
     };
-  }, [showSubLabelsPanel, samples, setShowSubLabelsPanel]);
+  }, [showSubLabelsPanel, samples, setShowSubLabelsPanel, groupingResults]);
   
   // Analyze samples wrapper function
   const analyzeSamples = () => {
@@ -53,7 +53,12 @@ const SubLabelsPanel: React.FC = () => {
   
   // Export wrapper function
   const exportGroups = () => {
-    exportSampleGroups();
+    if (selectedGroup && groupingResults[selectedGroup]) {
+      toast.info(`Exporting group: ${selectedGroup}`);
+      exportSampleGroups(selectedGroup, groupingResults[selectedGroup], samples);
+    } else {
+      toast.error("Please select a group to export");
+    }
   };
   
   if (!showSubLabelsPanel) return null;

@@ -16,8 +16,13 @@ const GroupDetailView: React.FC<GroupDetailViewProps> = ({
   exportGroups, 
   analyzeSamples 
 }) => {
+  // Prevent event propagation
+  const handleClick = (e: React.MouseEvent) => {
+    e.stopPropagation();
+  };
+  
   return (
-    <>
+    <div onClick={handleClick} className="w-full h-full">
       <div className="mb-8">
         <h3 className="text-2xl md:text-3xl font-medium text-orange-300 mb-4">{selectedGroup}</h3>
         <p className="text-gray-400 text-lg">
@@ -34,7 +39,7 @@ const GroupDetailView: React.FC<GroupDetailViewProps> = ({
         exportGroups={exportGroups} 
         analyzeSamples={analyzeSamples} 
       />
-    </>
+    </div>
   );
 };
 

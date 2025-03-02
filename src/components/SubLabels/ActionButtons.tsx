@@ -16,7 +16,7 @@ const ActionButtons: React.FC<ActionButtonsProps> = ({ exportGroups, analyzeSamp
         }}
         className="w-full py-5 md:py-6 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xl font-medium transition-colors border border-orange-500/30 hover:border-orange-400/60 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50"
       >
-        Export All Grouped Samples
+        Export Selected Group
       </button>
       
       <button

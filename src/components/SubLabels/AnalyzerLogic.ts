@@ -1,163 +1,184 @@
+
+import { Sample, SampleCategory } from '@/types/sample';
 import { toast } from 'sonner';
+import JSZip from 'jszip';
 
-export type SampleType = {
-  id: string;
-  name: string;
-  category: {
-    id: string;
-    name: string;
-  };
-};
-
-export type CategoryType = {
-  id: string;
-  name: string;
-  selected: boolean;
-};
-
+// Analyze audio samples and group them
 export const analyzeAudioSamples = (
-  samples: SampleType[],
-  categories: CategoryType[],
+  samples: Sample[],
+  categories: SampleCategory[],
   setIsAnalyzing: (isAnalyzing: boolean) => void,
   setGroupingResults: (results: Record<string, string[]>) => void,
   setSelectedGroup: (group: string | null) => void
-): void => {
-  if (samples.length === 0) {
-    toast.error("No samples to analyze. Please upload some audio files first.");
-    return;
-  }
-  
-  // Get selected categories first
-  const selectedCategories = categories.filter(cat => cat.selected);
-  
-  // If no categories are selected, show a message and return early
-  if (selectedCategories.length === 0) {
-    toast.warning("No categories selected. Please select at least one category for analysis.");
-    return;
-  }
-  
+) => {
+  // Show loading state
   setIsAnalyzing(true);
-  setGroupingResults({});
-  setSelectedGroup(null);
   
-  // Simulate processing time
+  // Get only selected categories
+  const selectedCategories = categories.filter(category => category.selected);
+  if (selectedCategories.length === 0) {
+    toast.error("Please select at least one category to analyze");
+    setIsAnalyzing(false);
+    return;
+  }
+  
+  // Get samples from selected categories
+  const selectedSamples = samples.filter(sample => 
+    selectedCategories.some(category => category.id === sample.category.id)
+  );
+  
+  if (selectedSamples.length === 0) {
+    toast.error("No samples found in the selected categories");
+    setIsAnalyzing(false);
+    return;
+  }
+  
+  // Simulate analysis with a delay (in a real app, this would be a real analysis)
   setTimeout(() => {
+    // Create some sample groups based on the sample categories
     const results: Record<string, string[]> = {};
     
-    // Group samples by category first, but only for selected categories
-    const samplesByCategory: Record<string, SampleType[]> = {};
+    // Group by characteristics
+    // In a real app, this would use audio analysis to determine similarity
     
-    samples.forEach(sample => {
-      const categoryId = sample.category.id;
-      // Only include samples from selected categories
-      if (selectedCategories.some(cat => cat.id === categoryId)) {
-        if (!samplesByCategory[categoryId]) {
-          samplesByCategory[categoryId] = [];
+    // Simulate grouping by BPM ranges
+    const bpmGroups: Record<string, string[]> = {};
+    const keyGroups: Record<string, string[]> = {};
+    
+    // Simulate grouping by BPM
+    selectedSamples.forEach(sample => {
+      if (sample.bpm) {
+        const bpmRange = Math.floor(sample.bpm / 10) * 10;
+        const groupName = `Tempo ${bpmRange}-${bpmRange + 10} BPM`;
+        
+        if (!bpmGroups[groupName]) {
+          bpmGroups[groupName] = [];
         }
-        samplesByCategory[categoryId].push(sample);
+        
+        bpmGroups[groupName].push(sample.name);
+      }
+      
+      // Group by key
+      if (sample.key) {
+        const groupName = `Key: ${sample.key}`;
+        
+        if (!keyGroups[groupName]) {
+          keyGroups[groupName] = [];
+        }
+        
+        keyGroups[groupName].push(sample.name);
       }
     });
     
-    // Process each category with samples
-    Object.entries(samplesByCategory).forEach(([categoryId, categorySamples]) => {
-      if (categorySamples.length === 0) return;
-      
-      const category = categories.find(c => c.id === categoryId);
-      if (!category) return;
-      
-      // Create 4 different subgroups for each category with samples
-      // In a real system, this would analyze actual audio characteristics
-      
-      // Simulate different sonic properties based on category
-      switch(categoryId) {
-        case 'kicks':
-          results['Kicks: Subby & Warm'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
-          results['Kicks: Punchy & Tight'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
-          results['Kicks: Distorted'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
-          results['Kicks: Lo-Fi & Dusty'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
-          break;
-          
-        case 'snares':
-          results['Snares: Crisp & Sharp'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
-          results['Snares: Fat & Full'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
-          results['Snares: Processed & Layered'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
-          results['Claps & Snappy Hits'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
-          break;
-          
-        case 'hihats':
-          results['Hi-Hats: Tight & Closed'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
-          results['Hi-Hats: Open & Washy'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
-          results['Hats: Dirty & Processed'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
-          results['Cymbals & Rides'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
-          break;
-          
-        case 'percussion':
-          results['Percussion: Bright & Tonal'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
-          results['Percussion: Wooden & Earthy'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
-          results['Percussion: Metallic & Ringing'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
-          results['Percussion: Ethnic & Unusual'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
-          break;
-          
-        case 'bass':
-          results['Bass: Deep Sub & 808'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
-          results['Bass: Mid-Range & Growly'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
-          results['Bass: Distorted & Aggressive'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
-          results['Bass: Melodic & Tonal'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
-          break;
-          
-        case 'sfx':
-          results['SFX: Risers & Transitions'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
-          results['SFX: Impacts & Hits'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
-          results['SFX: Atmospheric & Textural'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
-          results['SFX: Glitchy & Digital'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
-          break;
-          
-        case 'vocals':
-          results['Vocals: One-Shots & Phrases'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
-          results['Vocals: Chops & Cuts'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
-          results['Vocals: Processed & Effects'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
-          results['Vocals: Rhythmic & Percussive'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
-          break;
-          
-        default:
-          results[`${category.name}: Group 1`] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
-          results[`${category.name}: Group 2`] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
-          results[`${category.name}: Group 3`] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
-          results[`${category.name}: Group 4`] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
+    // Add BPM groups to results
+    Object.keys(bpmGroups).forEach(groupName => {
+      if (bpmGroups[groupName].length >= 2) {
+        results[groupName] = bpmGroups[groupName];
       }
     });
     
-    // Only keep non-empty groups
-    Object.keys(results).forEach(key => {
-      if (results[key].length === 0) {
-        delete results[key];
+    // Add key groups to results
+    Object.keys(keyGroups).forEach(groupName => {
+      if (keyGroups[groupName].length >= 2) {
+        results[groupName] = keyGroups[groupName];
       }
     });
     
+    // Add categories as groups
+    selectedCategories.forEach(category => {
+      const samplesInCategory = selectedSamples
+        .filter(sample => sample.category.id === category.id)
+        .map(sample => sample.name);
+      
+      if (samplesInCategory.length >= 2) {
+        results[category.name] = samplesInCategory;
+      }
+    });
+    
+    // If no groups were created, add a default group
+    if (Object.keys(results).length === 0) {
+      results["All Selected Samples"] = selectedSamples.map(sample => sample.name);
+    }
+    
+    // Update state with results
     setGroupingResults(results);
     setIsAnalyzing(false);
     
-    if (Object.keys(results).length === 0) {
-      toast.warning("No groups could be created. Try uploading more samples or selecting different categories.");
-    } else {
-      toast.success("Samples analyzed and grouped successfully!");
-      // Set the first group as selected by default
-      setSelectedGroup(Object.keys(results)[0]);
+    // Select the first group by default
+    const firstGroup = Object.keys(results)[0];
+    if (firstGroup) {
+      setSelectedGroup(firstGroup);
     }
+    
+    toast.success(`Analysis complete! Created ${Object.keys(results).length} groups`);
   }, 1500);
 };
 
-export const exportSampleGroups = (): void => {
-  toast.success("Grouped samples will be exported to your downloads folder.");
-  // In a real implementation, this would create a ZIP file with the grouped folders
+// Export sample groups as ZIP file
+export const exportSampleGroups = (
+  groupName: string,
+  sampleNames: string[],
+  allSamples: Sample[]
+) => {
+  // Create a new JSZip instance
+  const zip = new JSZip();
   
-  setTimeout(() => {
-    const downloadLink = document.createElement('a');
-    const blob = new Blob(['Sample JSZip export would happen here'], { type: 'text/plain' });
-    downloadLink.href = URL.createObjectURL(blob);
-    downloadLink.download = "similarity_groups.txt";
-    document.body.appendChild(downloadLink);
-    downloadLink.click();
-    document.body.removeChild(downloadLink);
-  }, 1000);
+  // Create a folder for the group
+  const groupFolder = zip.folder(groupName);
+  
+  if (!groupFolder) {
+    toast.error("Failed to create group folder");
+    return;
+  }
+  
+  // Find the samples in the allSamples array
+  const samplesToExport = allSamples.filter(sample => 
+    sampleNames.includes(sample.name)
+  );
+  
+  if (samplesToExport.length === 0) {
+    toast.error("No samples found to export");
+    return;
+  }
+  
+  toast.info(`Preparing ${samplesToExport.length} samples for export...`);
+  
+  // In a real app, we would add the actual audio files to the ZIP
+  // For this demo, we'll create text files with sample info
+  samplesToExport.forEach((sample, index) => {
+    const sampleInfo = `
+Sample Name: ${sample.name}
+Category: ${sample.category.name}
+Size: ${sample.size} bytes
+${sample.bpm ? `BPM: ${sample.bpm}` : ''}
+${sample.key ? `Key: ${sample.key}` : ''}
+Duration: ${sample.duration ? `${sample.duration.toFixed(2)} seconds` : 'Unknown'}
+    `;
+    
+    groupFolder.file(`${index + 1}_${sample.name}.txt`, sampleInfo);
+  });
+  
+  // Generate the ZIP file and trigger download
+  zip.generateAsync({ type: "blob" })
+    .then(function(content) {
+      // Create a download link
+      const url = URL.createObjectURL(content);
+      const a = document.createElement("a");
+      a.href = url;
+      a.download = `${groupName.replace(/\s+/g, '_')}_Samples.zip`;
+      document.body.appendChild(a);
+      a.click();
+      
+      // Clean up
+      setTimeout(() => {
+        document.body.removeChild(a);
+        URL.revokeObjectURL(url);
+      }, 100);
+      
+      toast.success(`Exported ${samplesToExport.length} samples as ZIP file`);
+    })
+    .catch(error => {
+      console.error("Error generating ZIP:", error);
+      toast.error("Failed to generate ZIP file");
+    });
 };

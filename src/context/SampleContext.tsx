@@ -5,13 +5,32 @@ import { defaultCategories } from '@/utils/sampleUtils';
 import { useSampleAnalyzer } from '@/hooks/useSampleAnalyzer';
 import { useExportSamples } from '@/hooks/useExportSamples';
 
-const SampleContext = createContext<SampleContextType | undefined>(undefined);
+// Create the context with a default value
+const SampleContext = createContext<SampleContextType>({
+  samples: [],
+  categories: [],
+  isAnalyzing: false,
+  isExporting: false,
+  analyzedCount: 0,
+  totalSamples: 0,
+  selectedSamplesCount: 0,
+  showSubLabelsPanel: false,
+  setShowSubLabelsPanel: () => {},
+  getFilteredSamples: () => [],
+  currentlyPlayingSample: null,
+  addSamples: () => {},
+  toggleCategory: () => {},
+  selectAllCategories: () => {},
+  unselectAllCategories: () => {},
+  playSample: () => {},
+  stopSample: () => {},
+  exportSamples: () => {},
+  resetAll: () => {},
+  getCategoryCount: () => 0,
+});
 
 export const useSampleContext = () => {
   const context = useContext(SampleContext);
-  if (!context) {
-    throw new Error('useSampleContext must be used within a SampleProvider');
-  }
   return context;
 };
 
