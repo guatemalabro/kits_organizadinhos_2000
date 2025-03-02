@@ -5,29 +5,99 @@ import { useSampleContext } from '@/context/SampleContext';
 const Dropzone: React.FC = () => {
   const { addSamples, isAnalyzing, samples } = useSampleContext();
   
+  const processFiles = useCallback(
+    async (items: DataTransferItemList | FileList): Promise<File[]> => {
+      const audioFiles: File[] = [];
+      
+      // Helper function to check if a file is an audio file
+      const isAudioFile = (file: File) => {
+        return file.type.startsWith('audio/') || 
+               file.name.endsWith('.wav') || 
+               file.name.endsWith('.mp3') || 
+               file.name.endsWith('.aif') || 
+               file.name.endsWith('.aiff');
+      };
+      
+      // Helper function to recursively process directory entries
+      const processEntry = async (entry: FileSystemEntry): Promise<void> => {
+        if (entry.isFile) {
+          const fileEntry = entry as FileSystemFileEntry;
+          await new Promise<void>((resolve) => {
+            fileEntry.file((file) => {
+              if (isAudioFile(file)) {
+                audioFiles.push(file);
+              }
+              resolve();
+            });
+          });
+        } else if (entry.isDirectory) {
+          const dirEntry = entry as FileSystemDirectoryEntry;
+          const reader = dirEntry.createReader();
+          
+          // Read all entries in the directory
+          await new Promise<void>((resolve) => {
+            const readEntries = async () => {
+              reader.readEntries(async (entries) => {
+                if (entries.length === 0) {
+                  resolve();
+                  return;
+                }
+                
+                // Process all entries
+                await Promise.all(entries.map(processEntry));
+                
+                // Continue reading (readEntries can only read a limited number at a time)
+                readEntries();
+              });
+            };
+            
+            readEntries();
+          });
+        }
+      };
+      
+      // Handle both DataTransferItemList (for drag and drop) and FileList (for file input)
+      if ('length' in items) {
+        if ('webkitGetAsEntry' in items[0]) {
+          // It's a DataTransferItemList from drag and drop
+          await Promise.all(
+            Array.from(items).map(async (item) => {
+              const entry = item.webkitGetAsEntry();
+              if (entry) {
+                await processEntry(entry);
+              }
+            })
+          );
+        } else {
+          // It's a FileList from file input
+          Array.from(items as FileList).forEach((file) => {
+            if (isAudioFile(file)) {
+              audioFiles.push(file);
+            }
+          });
+        }
+      }
+      
+      return audioFiles;
+    },
+    []
+  );
+  
   const onDrop = useCallback(
-    (e: React.DragEvent<HTMLDivElement>) => {
+    async (e: React.DragEvent<HTMLDivElement>) => {
       e.preventDefault();
       e.stopPropagation();
       
       if (isAnalyzing) return;
       
-      if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
-        const filesArray = Array.from(e.dataTransfer.files);
-        const audioFiles = filesArray.filter(file => 
-          file.type.startsWith('audio/') || 
-          file.name.endsWith('.wav') || 
-          file.name.endsWith('.mp3') || 
-          file.name.endsWith('.aif') || 
-          file.name.endsWith('.aiff')
-        );
-        
+      if (e.dataTransfer.items) {
+        const audioFiles = await processFiles(e.dataTransfer.items);
         if (audioFiles.length > 0) {
           addSamples(audioFiles);
         }
       }
     },
-    [addSamples, isAnalyzing]
+    [addSamples, isAnalyzing, processFiles]
   );
   
   const onDragOver = useCallback((e: React.DragEvent<HTMLDivElement>) => {
@@ -36,13 +106,15 @@ const Dropzone: React.FC = () => {
   }, []);
   
   const handleFileInputChange = useCallback(
-    (e: React.ChangeEvent<HTMLInputElement>) => {
-      if (e.target.files && e.target.files.length > 0) {
-        const filesArray = Array.from(e.target.files);
-        addSamples(filesArray);
+    async (e: React.ChangeEvent<HTMLInputElement>) => {
+      if (e.target.files) {
+        const audioFiles = await processFiles(e.target.files);
+        if (audioFiles.length > 0) {
+          addSamples(audioFiles);
+        }
       }
     },
-    [addSamples]
+    [addSamples, processFiles]
   );
   
   return (
@@ -93,7 +165,7 @@ const Dropzone: React.FC = () => {
           </div>
           <p className="text-lg font-medium text-foreground">Drag and drop samples</p>
           <p className="text-sm text-muted-foreground mt-2">
-            or click to browse your files
+            or click to browse your files and folders
           </p>
           <p className="text-xs text-muted-foreground/70 mt-4">
             Supported formats: WAV, MP3, AIFF, AIF
@@ -106,6 +178,8 @@ const Dropzone: React.FC = () => {
         type="file"
         accept="audio/*,.wav,.mp3,.aiff,.aif"
         multiple
+        webkitdirectory=""
+        directory=""
         onChange={handleFileInputChange}
         className="hidden"
       />
