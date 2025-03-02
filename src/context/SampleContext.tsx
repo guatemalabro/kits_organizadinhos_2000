@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 import JSZip from 'jszip';
 
@@ -99,25 +98,154 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       // Simulate analysis delay
       await new Promise(resolve => setTimeout(resolve, 50));
       
-      // More intelligent category assignment based on filename patterns
+      // More intelligent category assignment based on detailed filename patterns
       const fileName = file.name.toLowerCase();
       let categoryId = 'other';
       
-      // Assign categories based on common naming patterns
-      if (/(^|\W)(kick|bd|bass\s*drum)(\W|$)/.test(fileName)) {
-        categoryId = 'kicks';
-      } else if (/(^|\W)(snare|clap|rim|sd)(\W|$)/.test(fileName)) {
-        categoryId = 'snares';
-      } else if (/(^|\W)(hat|hh|hi|hihat|cymbal)(\W|$)/.test(fileName)) {
-        categoryId = 'hihats';
-      } else if (/(^|\W)(tom|perc|conga|bongo|tamb|shaker|block)(\W|$)/.test(fileName)) {
-        categoryId = 'percussion';
-      } else if (/(^|\W)(bass|sub|808)(\W|$)/.test(fileName) && !/(^|\W)(drum)(\W|$)/.test(fileName)) {
-        categoryId = 'bass';
-      } else if (/(^|\W)(fx|riser|down|sweep|impact|whoosh|sfx)(\W|$)/.test(fileName)) {
-        categoryId = 'sfx';
-      } else if (/(^|\W)(vox|vocal|voice|speak|talk|sing)(\W|$)/.test(fileName)) {
-        categoryId = 'vocals';
+      // Define pattern checks with stronger boundaries to prevent false matches
+      const patternChecks = [
+        // Kick patterns - make sure to exclude patterns that might be confused with other categories
+        { 
+          category: 'kicks', 
+          patterns: [
+            /\bkick\b/,
+            /\bbd\b/,
+            /\bbass\s*drum\b/,
+            /\b808\s*kick\b/,
+            /\bkik\b/
+          ],
+          excludePatterns: [/\bsn\b/, /\bsnare\b/, /\bhat\b/, /\bcymbal\b/, /\bperc\b/]
+        },
+        // Snare patterns
+        { 
+          category: 'snares', 
+          patterns: [
+            /\bsnare\b/, 
+            /\bclap\b/, 
+            /\brim\b/, 
+            /\bsd\b/, 
+            /\bsn\b/,
+            /\bsnr\b/,
+            /\bslap\b/
+          ],
+          excludePatterns: [/\bkick\b/, /\bhat\b/, /\bcymbal\b/]
+        },
+        // Hi-hat patterns
+        { 
+          category: 'hihats', 
+          patterns: [
+            /\bhat\b/, 
+            /\bhh\b/, 
+            /\bhi\b/,
+            /\bhi[-\s]?hat\b/, 
+            /\bcymbal\b/, 
+            /\bcym\b/, 
+            /\bcmbl\b/, 
+            /\bclosed\b/, 
+            /\bopen\b/, 
+            /\btick\b/
+          ],
+          excludePatterns: [/\bkick\b/, /\bsnare\b/]
+        },
+        // Percussion patterns
+        { 
+          category: 'percussion', 
+          patterns: [
+            /\btom\b/, 
+            /\bperc\b/, 
+            /\bconga\b/, 
+            /\bbongo\b/, 
+            /\btamb\b/, 
+            /\bshaker\b/, 
+            /\bblock\b/, 
+            /\btriangle\b/, 
+            /\bdrum\b/, 
+            /\bcajon\b/, 
+            /\btimbale\b/
+          ],
+          excludePatterns: [/\bkick\b/, /\bsnare\b/, /\bhat\b/]
+        },
+        // Bass patterns (excluding drum patterns)
+        { 
+          category: 'bass', 
+          patterns: [
+            /\bbass\b/, 
+            /\bsub\b/, 
+            /\b808\b/
+          ],
+          excludePatterns: [/\bdrum\b/, /\bkick\b/]
+        },
+        // SFX patterns
+        { 
+          category: 'sfx', 
+          patterns: [
+            /\bfx\b/, 
+            /\briser\b/, 
+            /\bdown\b/, 
+            /\bsweep\b/, 
+            /\bimpact\b/, 
+            /\bwhoosh\b/, 
+            /\bsfx\b/, 
+            /\beffect\b/, 
+            /\btexture\b/, 
+            /\bnoize\b/, 
+            /\bnoise\b/, 
+            /\bambient\b/, 
+            /\batmos\b/
+          ],
+          excludePatterns: [/\bkick\b/, /\bsnare\b/, /\bhat\b/, /\bbass\b/]
+        },
+        // Vocal patterns
+        { 
+          category: 'vocals', 
+          patterns: [
+            /\bvox\b/, 
+            /\bvocal\b/, 
+            /\bvoice\b/, 
+            /\bspeak\b/, 
+            /\btalk\b/, 
+            /\bsing\b/, 
+            /\bchant\b/, 
+            /\bchoir\b/, 
+            /\bhuman\b/, 
+            /\bscream\b/, 
+            /\bshout\b/
+          ],
+          excludePatterns: []
+        }
+      ];
+      
+      // First pass: check for exact matches
+      let matched = false;
+      for (const check of patternChecks) {
+        // Skip if any exclude pattern matches
+        if (check.excludePatterns.some(pattern => pattern.test(fileName))) {
+          continue;
+        }
+        
+        // Check if any pattern matches
+        if (check.patterns.some(pattern => pattern.test(fileName))) {
+          categoryId = check.category;
+          matched = true;
+          break;
+        }
+      }
+      
+      // Second pass: check for partial matches if no exact match was found
+      if (!matched) {
+        // Try to infer based on file path if available
+        // For example, if the file is in a folder named "kicks", it's likely a kick
+        const pathParts = file.webkitRelativePath ? file.webkitRelativePath.toLowerCase().split('/') : [];
+        for (const part of pathParts) {
+          for (const check of patternChecks) {
+            if (check.patterns.some(pattern => pattern.test(part))) {
+              categoryId = check.category;
+              matched = true;
+              break;
+            }
+          }
+          if (matched) break;
+        }
       }
       
       // Get matching category
@@ -127,6 +255,7 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const categoryIndex = tempCategories.findIndex(cat => cat.id === categoryId);
       tempCategories[categoryIndex].count++;
       
+      // Create new sample
       const newSample: Sample = {
         id: `sample-${Date.now()}-${i}`,
         name: file.name,
@@ -252,9 +381,11 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       const downloadLink = document.createElement('a');
       downloadLink.href = URL.createObjectURL(content);
       downloadLink.download = `samples_export_${new Date().toISOString().slice(0, 10)}.zip`;
+      document.body.appendChild(downloadLink); // Add to DOM for Firefox support
       downloadLink.click();
       
       // Clean up
+      document.body.removeChild(downloadLink); // Remove from DOM
       setTimeout(() => {
         URL.revokeObjectURL(downloadLink.href);
       }, 100);
