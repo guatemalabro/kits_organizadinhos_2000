@@ -25,7 +25,6 @@ const SubLabelsPanel: React.FC = () => {
     // Add event listener to handle clicks outside
     const handleClickOutside = (event: MouseEvent) => {
       if (panelRef.current && !panelRef.current.contains(event.target as Node)) {
-        // Only close if we click outside
         setShowSubLabelsPanel(false);
       }
     };
@@ -65,24 +64,18 @@ const SubLabelsPanel: React.FC = () => {
   
   const groupNames = Object.keys(groupingResults);
   
-  // Prevent event propagation for closing when clicking inside the panel
-  const handleContainerClick = (e: React.MouseEvent) => {
-    e.stopPropagation();
-  };
-  
-  const handleCloseClick = () => {
-    setShowSubLabelsPanel(false);
-  };
-  
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden" onClick={handleContainerClick}>
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
+      // Removed the onClick handler here to prevent panel closure
+    >
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" />
       
       {/* Maximized panel - taking up almost the entire viewport */}
       <div 
         ref={panelRef}
         className="fixed inset-1 z-50 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl vhs-border flex flex-col"
-        onClick={handleContainerClick}
+        // Removed the onClick handler here to prevent panel closure
       >
         <PanelHeader handleCloseClick={handleCloseClick} />
         

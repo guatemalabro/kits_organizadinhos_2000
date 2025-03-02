@@ -51,6 +51,17 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   
   const { isExporting, exportSamples: exportSamplesHook } = useExportSamples();
 
+  // Persistent state management for panel
+  const handleShowSubLabelsPanel = useCallback((show: boolean) => {
+    // Only set if there's an actual change to prevent unnecessary re-renders
+    setShowSubLabelsPanel(prevState => {
+      if (prevState !== show) {
+        return show;
+      }
+      return prevState;
+    });
+  }, []);
+
   // Filtering samples
   const getFilteredSamples = useCallback(() => {
     return samples.filter(sample => 
@@ -135,7 +146,7 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     totalSamples,
     selectedSamplesCount,
     showSubLabelsPanel,
-    setShowSubLabelsPanel,
+    setShowSubLabelsPanel: handleShowSubLabelsPanel,
     getFilteredSamples,
     currentlyPlayingSample,
     addSamples,

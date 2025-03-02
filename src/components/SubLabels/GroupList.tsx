@@ -46,6 +46,10 @@ const GroupList: React.FC<GroupListProps> = ({
       {groupNames.map((groupName) => (
         <button
           key={groupName}
+          onMouseDown={(e) => {
+            e.preventDefault(); // Prevent default
+            e.stopPropagation(); // Stop propagation
+          }}
           onClick={(e) => {
             e.preventDefault(); // Prevent default
             e.stopPropagation(); // Stop propagation
