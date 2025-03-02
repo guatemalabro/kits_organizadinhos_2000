@@ -70,7 +70,7 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [totalSamples, setTotalSamples] = useState(0);
   const [currentlyPlayingSample, setCurrentlyPlayingSample] = useState<string | null>(null);
 
-  // Mock function to analyze samples (in a real app, you'd use ML classification)
+  // Improved sample analysis with more accurate categorization
   const analyzeSamples = useCallback(async (files: File[]) => {
     setIsAnalyzing(true);
     setTotalSamples(files.length);
@@ -90,11 +90,32 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       // Simulate analysis delay
       await new Promise(resolve => setTimeout(resolve, 50));
       
-      // Assign random category for demo (in a real app, this would be ML-based)
-      const categoryIndex = Math.floor(Math.random() * categories.length);
-      const category = tempCategories[categoryIndex];
+      // More intelligent category assignment based on filename patterns
+      const fileName = file.name.toLowerCase();
+      let categoryId = 'other';
+      
+      // Assign categories based on common naming patterns
+      if (/(^|\W)(kick|bd|bass\s*drum)(\W|$)/.test(fileName)) {
+        categoryId = 'kicks';
+      } else if (/(^|\W)(snare|clap|rim|sd)(\W|$)/.test(fileName)) {
+        categoryId = 'snares';
+      } else if (/(^|\W)(hat|hh|hi|hihat|cymbal)(\W|$)/.test(fileName)) {
+        categoryId = 'hihats';
+      } else if (/(^|\W)(tom|perc|conga|bongo|tamb|shaker|block)(\W|$)/.test(fileName)) {
+        categoryId = 'percussion';
+      } else if (/(^|\W)(bass|sub|808)(\W|$)/.test(fileName) && !/(^|\W)(drum)(\W|$)/.test(fileName)) {
+        categoryId = 'bass';
+      } else if (/(^|\W)(fx|riser|down|sweep|impact|whoosh|sfx)(\W|$)/.test(fileName)) {
+        categoryId = 'sfx';
+      } else if (/(^|\W)(vox|vocal|voice|speak|talk|sing)(\W|$)/.test(fileName)) {
+        categoryId = 'vocals';
+      }
+      
+      // Get matching category
+      const category = tempCategories.find(cat => cat.id === categoryId)!;
       
       // Increment category count
+      const categoryIndex = tempCategories.findIndex(cat => cat.id === categoryId);
       tempCategories[categoryIndex].count++;
       
       const newSample: Sample = {

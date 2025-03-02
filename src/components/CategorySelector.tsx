@@ -21,17 +21,17 @@ const CategorySelector: React.FC = () => {
   const CategoryItem: React.FC<{ category: SampleCategory }> = ({ category }) => {
     return (
       <div 
-        className={`flex items-center justify-between px-4 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
+        className={`flex items-center justify-between px-4 py-3 rounded-md transition-all duration-200 cursor-pointer ${
           category.selected 
-            ? 'bg-primary/10 hover:bg-primary/15' 
-            : 'bg-secondary/70 hover:bg-secondary'
+            ? 'bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/30' 
+            : 'bg-zinc-800/80 hover:bg-zinc-700/50 border border-zinc-700/50'
         }`}
         onClick={() => toggleCategory(category.id)}
       >
         <div className="flex items-center">
           <div 
-            className={`w-5 h-5 rounded-md mr-3 flex items-center justify-center transition-colors ${
-              category.selected ? 'bg-primary' : 'bg-muted-foreground/20'
+            className={`w-5 h-5 rounded-sm mr-3 flex items-center justify-center transition-colors ${
+              category.selected ? 'bg-orange-500' : 'bg-zinc-700'
             }`}
           >
             {category.selected && (
@@ -51,15 +51,15 @@ const CategorySelector: React.FC = () => {
               </svg>
             )}
           </div>
-          <span className="font-medium">{category.name}</span>
+          <span className="font-medium tracking-tight">{category.name}</span>
         </div>
         <div className="flex items-center">
           <span className={`text-sm rounded-full px-2.5 py-0.5 ${
             category.count > 0 
               ? category.selected 
-                ? 'bg-primary/20 text-primary' 
-                : 'bg-muted-foreground/10 text-muted-foreground' 
-              : 'bg-muted-foreground/10 text-muted-foreground/50'
+                ? 'bg-orange-500/20 text-orange-400' 
+                : 'bg-zinc-700 text-zinc-300' 
+              : 'bg-zinc-800 text-zinc-500'
           }`}>
             {category.count}
           </span>
@@ -72,11 +72,11 @@ const CategorySelector: React.FC = () => {
     <div className="w-full animate-fade-in">
       <div className="flex flex-col space-y-1 mb-6">
         <div className="flex items-center justify-between mb-2">
-          <h3 className="text-lg font-medium">Categories</h3>
+          <h3 className="text-lg font-medium tracking-tighter">Categories</h3>
           <div className="flex items-center space-x-4">
             <button 
               onClick={selectAllCategories}
-              className="text-xs text-primary hover:text-primary/80 transition-colors focus-ring"
+              className="text-xs text-orange-400 hover:text-orange-300 transition-colors focus-ring"
             >
               Select All
             </button>

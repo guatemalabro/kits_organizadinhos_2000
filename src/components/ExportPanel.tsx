@@ -22,9 +22,9 @@ const ExportPanel: React.FC = () => {
     .join(', ');
   
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-xl bg-primary/5 border border-primary/20 animate-fade-in">
+    <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-md bg-zinc-900 border border-zinc-800 animate-fade-in">
       <div className="mb-4 md:mb-0">
-        <h3 className="text-lg font-medium mb-1">Export Selected Samples</h3>
+        <h3 className="text-lg font-medium mb-1 tracking-tighter">Export Selected Samples</h3>
         <p className="text-sm text-muted-foreground">
           {selectedSamplesCount === 0 ? (
             <span>No samples selected</span>
@@ -39,10 +39,10 @@ const ExportPanel: React.FC = () => {
       <button
         onClick={exportSamples}
         disabled={selectedSamplesCount === 0 || isExporting}
-        className={`px-6 py-3 rounded-lg font-medium transition-all focus-ring ${
+        className={`px-6 py-3 rounded-md font-medium transition-all focus-ring ${
           selectedSamplesCount === 0 || isExporting
-            ? 'bg-muted text-muted-foreground cursor-not-allowed'
-            : 'bg-primary text-white hover:bg-primary/90'
+            ? 'bg-zinc-800 text-muted-foreground cursor-not-allowed'
+            : 'bg-orange-500 text-white hover:bg-orange-600'
         } flex items-center`}
       >
         {isExporting ? (

@@ -5,35 +5,35 @@
 
 @layer base {
   :root {
-    --background: 220 33% 98%;
-    --foreground: 220 33% 9%;
+    --background: 240 10% 3.9%;
+    --foreground: 0 0% 98%;
 
-    --card: 0 0% 100%;
-    --card-foreground: 220 33% 9%;
+    --card: 240 10% 3.9%;
+    --card-foreground: 0 0% 98%;
 
-    --popover: 0 0% 100%;
-    --popover-foreground: 220 33% 9%;
+    --popover: 240 10% 3.9%;
+    --popover-foreground: 0 0% 98%;
 
-    --primary: 220 40% 45%;
-    --primary-foreground: 210 40% 98%;
+    --primary: 21 90% 48%;
+    --primary-foreground: 0 0% 98%;
 
-    --secondary: 220 20% 92%;
-    --secondary-foreground: 220 33% 9%;
+    --secondary: 240 3.7% 15.9%;
+    --secondary-foreground: 0 0% 98%;
 
-    --muted: 220 20% 92%;
-    --muted-foreground: 220 20% 40%;
+    --muted: 240 3.7% 15.9%;
+    --muted-foreground: 240 5% 64.9%;
 
-    --accent: 220 20% 92%;
-    --accent-foreground: 220 33% 9%;
+    --accent: 240 3.7% 15.9%;
+    --accent-foreground: 0 0% 98%;
 
-    --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive: 0 62.8% 30.6%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 220 20% 88%;
-    --input: 220 20% 88%;
-    --ring: 220 20% 88%;
+    --border: 240 3.7% 15.9%;
+    --input: 240 3.7% 15.9%;
+    --ring: 240 4.9% 83.9%;
 
-    --radius: 0.75rem;
+    --radius: 0.5rem;
   }
 }
 
@@ -45,12 +45,13 @@
   body {
     @apply bg-background text-foreground antialiased;
     font-feature-settings: "ss01", "ss03", "cv01", "cv02", "cv03";
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
   }
   
   /* Custom scrollbar */
   ::-webkit-scrollbar {
-    width: 8px;
-    height: 8px;
+    width: 6px;
+    height: 6px;
   }
   
   ::-webkit-scrollbar-track {
@@ -63,16 +64,16 @@
   
   /* Glass morphism utility classes */
   .glass {
-    @apply bg-white/70 backdrop-blur-md backdrop-saturate-150 border border-white/20;
+    @apply bg-zinc-900/80 backdrop-blur-md backdrop-saturate-150 border border-zinc-800/50;
   }
   
   .glass-dark {
-    @apply bg-foreground/10 backdrop-blur-md backdrop-saturate-150 border border-foreground/10;
+    @apply bg-zinc-950/90 backdrop-blur-md backdrop-saturate-150 border border-zinc-800/20;
   }
   
   /* Focus styles */
   .focus-ring {
-    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-primary/50 focus-visible:ring-offset-background;
+    @apply focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-offset-2 focus-visible:ring-orange-500/50 focus-visible:ring-offset-background;
   }
   
   /* Typography */
