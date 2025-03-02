@@ -1,3 +1,4 @@
+
 import React, { useState, useEffect, useRef } from 'react';
 import { useSampleContext } from '@/context/SampleContext';
 import { toast } from 'sonner';
@@ -40,6 +41,15 @@ const SubLabelsPanel: React.FC = () => {
       return;
     }
     
+    // Get selected categories first
+    const selectedCategories = categories.filter(cat => cat.selected);
+    
+    // If no categories are selected, show a message and return early
+    if (selectedCategories.length === 0) {
+      toast.warning("No categories selected. Please select at least one category for analysis.");
+      return;
+    }
+    
     setIsAnalyzing(true);
     setGroupingResults({});
     setSelectedGroup(null);
@@ -47,16 +57,6 @@ const SubLabelsPanel: React.FC = () => {
     // Simulate processing time
     setTimeout(() => {
       const results: Record<string, string[]> = {};
-      
-      // Only use selected categories
-      const selectedCategories = categories.filter(cat => cat.selected);
-      
-      // If no categories are selected, show a message
-      if (selectedCategories.length === 0) {
-        toast.warning("No categories selected. Please select at least one category for analysis.");
-        setIsAnalyzing(false);
-        return;
-      }
       
       // Group samples by category first, but only for selected categories
       const samplesByCategory: Record<string, any[]> = {};
@@ -181,7 +181,7 @@ const SubLabelsPanel: React.FC = () => {
   
   const groupNames = Object.keys(groupingResults);
   
-  // Prevent event propagation for closing
+  // Prevent event propagation for closing when clicking inside the panel
   const handleContainerClick = (e: React.MouseEvent) => {
     e.stopPropagation();
   };
@@ -194,7 +194,7 @@ const SubLabelsPanel: React.FC = () => {
     <div className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden" onClick={handleContainerClick}>
       <div className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200" />
       
-      {/* Significantly larger panel - taking up almost the entire viewport */}
+      {/* Maximized panel - taking up almost the entire viewport */}
       <div 
         ref={panelRef}
         className="fixed inset-1 z-50 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl vhs-border flex flex-col"
@@ -278,7 +278,7 @@ const SubLabelsPanel: React.FC = () => {
           </div>
           
           {/* Right content area - Sample details - Increased padding and font sizes */}
-          <div className="flex-1 overflow-y-auto p-5 md:p-8 h-full">
+          <div className="flex-1 overflow-y-auto p-5 md:p-8 h-2/3 md:h-full">
             {isAnalyzing ? (
               <div className="flex flex-col items-center justify-center h-64">
                 <p className="text-gray-400 text-xl">Analyzing samples...</p>
@@ -298,25 +298,25 @@ const SubLabelsPanel: React.FC = () => {
                   
                   <div className="overflow-y-auto max-h-[40vh] md:max-h-[50vh] pr-2">
                     <table className="w-full">
-                      <thead className="border-b border-zinc-700/50">
+                      <thead className="border-b border-zinc-700/50 sticky top-0 bg-zinc-800/90 z-10">
                         <tr>
-                          <th className="text-left text-sm font-medium text-gray-500 pb-4 w-16">#</th>
-                          <th className="text-left text-sm font-medium text-gray-500 pb-4">Sample Name</th>
+                          <th className="text-left text-sm font-medium text-gray-500 p-4 w-16">#</th>
+                          <th className="text-left text-sm font-medium text-gray-500 p-4">Sample Name</th>
                         </tr>
                       </thead>
                       <tbody className="divide-y divide-zinc-800/30">
                         {groupingResults[selectedGroup]?.map((sampleName, index) => (
                           <tr 
                             key={index} 
-                            className="hover:bg-zinc-700/20 group cursor-pointer"
+                            className="hover:bg-zinc-700/20 group cursor-pointer transition-colors"
                             onClick={(e) => {
                               e.stopPropagation();
                               // In a real app, this would play the sample
                               toast.info(`Playing sample: ${sampleName}`);
                             }}
                           >
-                            <td className="py-4 px-2 text-gray-500 text-base">{index + 1}</td>
-                            <td className="py-4 px-2 text-gray-300 text-lg group-hover:text-orange-300 transition-colors">{sampleName}</td>
+                            <td className="py-4 px-4 text-gray-500 text-base">{index + 1}</td>
+                            <td className="py-4 px-4 text-gray-300 text-lg group-hover:text-orange-300 transition-colors">{sampleName}</td>
                           </tr>
                         ))}
                       </tbody>
@@ -330,7 +330,7 @@ const SubLabelsPanel: React.FC = () => {
                       e.stopPropagation();
                       exportGroups();
                     }}
-                    className="w-full py-4 md:py-5 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-lg font-medium transition-colors border border-orange-500/30 hover:border-orange-400/60 shadow-md hover:shadow-lg"
+                    className="w-full py-5 md:py-6 rounded-lg bg-orange-600 hover:bg-orange-500 text-white text-xl font-medium transition-colors border border-orange-500/30 hover:border-orange-400/60 shadow-md hover:shadow-lg focus:outline-none focus:ring-2 focus:ring-orange-500/50"
                   >
                     Export All Grouped Samples
                   </button>
@@ -340,7 +340,7 @@ const SubLabelsPanel: React.FC = () => {
                       e.stopPropagation();
                       analyzeSamples();
                     }}
-                    className="w-full py-3 md:py-4 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-gray-300 text-lg font-medium transition-colors"
+                    className="w-full py-4 md:py-5 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-gray-300 text-lg font-medium transition-colors focus:outline-none focus:ring-2 focus:ring-zinc-700/50"
                   >
                     Re-analyze Samples
                   </button>
