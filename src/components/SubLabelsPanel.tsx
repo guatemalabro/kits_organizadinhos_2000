@@ -1,5 +1,5 @@
 
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, MouseEvent } from 'react';
 import { useSampleContext } from '@/context/SampleContext';
 import { toast } from 'sonner';
 
@@ -151,27 +151,34 @@ const SubLabelsPanel: React.FC = () => {
   
   const groupNames = Object.keys(groupingResults);
   
+  const handleOverlayClick = (e: MouseEvent) => {
+    e.stopPropagation();
+    setShowSubLabelsPanel(false);
+  };
+  
+  const handlePanelClick = (e: MouseEvent) => {
+    e.stopPropagation();
+  };
+  
   return (
-    <div className="fixed inset-0 z-50 flex items-center justify-center" onClick={(e) => e.stopPropagation()}>
+    <div 
+      className="fixed inset-0 z-50 flex items-center justify-center overflow-hidden"
+      onClick={handleOverlayClick}
+    >
       <div 
         className="fixed inset-0 bg-black/80 backdrop-blur-sm animate-in fade-in duration-200"
-        onClick={() => setShowSubLabelsPanel(false)}
       />
       
       <div 
-        className="fixed inset-2 z-50 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl vhs-border flex flex-col"
-        style={{ maxHeight: '96vh', maxWidth: '96vw' }}
-        onClick={(e) => e.stopPropagation()}
+        className="fixed inset-4 z-50 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl vhs-border flex flex-col max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]"
+        onClick={handlePanelClick}
       >
         <div className="p-4 md:p-6 border-b border-zinc-800 flex justify-between items-center sticky top-0 bg-zinc-900 z-10">
           <h2 className="text-xl md:text-2xl font-bold text-orange-400 vhs-text" data-text="Audio Similarity Analysis">
             Audio Similarity Analysis
           </h2>
           <button 
-            onClick={(e) => {
-              e.stopPropagation();
-              setShowSubLabelsPanel(false);
-            }}
+            onClick={handleOverlayClick}
             className="w-8 h-8 md:w-10 md:h-10 rounded-full bg-zinc-800 flex items-center justify-center hover:bg-zinc-700 transition-colors"
             aria-label="Close"
           >
@@ -184,7 +191,7 @@ const SubLabelsPanel: React.FC = () => {
         
         <div className="flex flex-col md:flex-row h-[calc(100%-5rem)] overflow-hidden">
           {/* Left sidebar - Group list */}
-          <div className="bg-zinc-950/50 border-r border-zinc-800 overflow-y-auto p-4 md:p-6 h-1/3 md:h-full md:w-1/3 lg:w-1/4">
+          <div className="w-full md:w-1/3 lg:w-1/4 bg-zinc-950/50 border-r border-zinc-800 overflow-y-auto p-4 md:p-6 h-1/3 md:h-full">
             <h3 className="text-lg font-medium text-orange-300 mb-4 md:mb-6">Similarity Groups</h3>
             
             {isAnalyzing ? (
@@ -239,7 +246,7 @@ const SubLabelsPanel: React.FC = () => {
           </div>
           
           {/* Right content area - Sample details */}
-          <div className="flex-1 overflow-y-auto p-4 md:p-6 h-2/3 md:h-full">
+          <div className="flex-1 overflow-y-auto p-4 md:p-6 h-full">
             {isAnalyzing ? (
               <div className="flex flex-col items-center justify-center h-64">
                 <p className="text-gray-400 text-lg">Analyzing samples...</p>

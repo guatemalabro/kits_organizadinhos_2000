@@ -9,6 +9,7 @@ const SubLabelsButton: React.FC = () => {
   
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
+    e.preventDefault();
     
     if (samples.length === 0) {
       toast.error("Please upload some audio samples first");
