@@ -1,3 +1,4 @@
+
 import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 import JSZip from 'jszip';
 
@@ -41,6 +42,7 @@ interface SampleContextType {
   stopSample: () => void;
   exportSamples: () => void;
   resetAll: () => void;
+  getCategoryCount: (categoryId: string) => number;
 }
 
 const SampleContext = createContext<SampleContextType | undefined>(undefined);
@@ -77,6 +79,21 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       categories.find(cat => cat.id === sample.category.id)?.selected
     );
   }, [samples, categories]);
+
+  // Get count of samples in a specific category
+  const getCategoryCount = useCallback((categoryId: string) => {
+    return samples.filter(sample => sample.category.id === categoryId).length;
+  }, [samples]);
+
+  // Update category counts after sample analysis
+  const updateCategoryCounts = useCallback(() => {
+    setCategories(prev => 
+      prev.map(category => ({
+        ...category,
+        count: samples.filter(sample => sample.category.id === category.id).length
+      }))
+    );
+  }, [samples]);
 
   // Improved sample analysis with more accurate categorization
   const analyzeSamples = useCallback(async (files: File[]) => {
@@ -274,8 +291,17 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
       setAnalyzedCount(i + 1);
     }
     
-    setSamples(prev => [...prev, ...newSamples]);
-    setCategories(tempCategories);
+    setSamples(prev => {
+      const updatedSamples = [...prev, ...newSamples];
+      // Update category counts based on actual sample distribution
+      const updatedCategories = tempCategories.map(category => ({
+        ...category,
+        count: updatedSamples.filter(sample => sample.category.id === category.id).length
+      }));
+      setCategories(updatedCategories);
+      return updatedSamples;
+    });
+    
     setIsAnalyzing(false);
   }, [categories]);
 
@@ -432,6 +458,7 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     stopSample,
     exportSamples,
     resetAll,
+    getCategoryCount,
   };
 
   return <SampleContext.Provider value={value}>{children}</SampleContext.Provider>;

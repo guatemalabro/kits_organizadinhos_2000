@@ -11,7 +11,8 @@ const CategorySelector: React.FC = () => {
     unselectAllCategories,
     selectedSamplesCount,
     samples,
-    isAnalyzing
+    isAnalyzing,
+    getCategoryCount
   } = useSampleContext();
 
   if (samples.length === 0 && !isAnalyzing) {
@@ -19,6 +20,9 @@ const CategorySelector: React.FC = () => {
   }
 
   const CategoryItem: React.FC<{ category: SampleCategory }> = ({ category }) => {
+    // Use getCategoryCount to get accurate count
+    const actualCount = getCategoryCount(category.id);
+    
     return (
       <div 
         className={`flex items-center justify-between px-4 py-3 rounded-md transition-all duration-200 cursor-pointer ${
@@ -55,13 +59,13 @@ const CategorySelector: React.FC = () => {
         </div>
         <div className="flex items-center">
           <span className={`text-sm rounded-full px-2.5 py-0.5 ${
-            category.count > 0 
+            actualCount > 0 
               ? category.selected 
                 ? 'bg-orange-500/20 text-orange-400' 
                 : 'bg-zinc-700 text-zinc-300' 
               : 'bg-zinc-800 text-zinc-500'
           }`}>
-            {category.count}
+            {actualCount}
           </span>
         </div>
       </div>

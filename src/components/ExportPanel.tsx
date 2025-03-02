@@ -5,76 +5,73 @@ import { useSampleContext } from '@/context/SampleContext';
 const ExportPanel: React.FC = () => {
   const { 
     samples, 
+    isExporting, 
     exportSamples, 
-    selectedSamplesCount, 
+    resetAll, 
     categories,
-    isExporting,
-    isAnalyzing,
-    getFilteredSamples
+    getCategoryCount
   } = useSampleContext();
-  
-  if (samples.length === 0 || isAnalyzing) {
+
+  if (samples.length === 0) {
     return null;
   }
+
+  // Get selected categories
+  const selectedCategories = categories.filter(cat => cat.selected);
   
-  // Get accurate counts per category for selected samples
-  const filteredSamples = getFilteredSamples();
-  const categoryCounts: Record<string, number> = {};
-  
-  filteredSamples.forEach(sample => {
-    const categoryId = sample.category.id;
-    categoryCounts[categoryId] = (categoryCounts[categoryId] || 0) + 1;
-  });
-  
-  // Build a string showing categories and their counts
-  const selectedCategoriesText = categories
-    .filter(cat => cat.selected && categoryCounts[cat.id] > 0)
-    .map(cat => `${cat.name} (${categoryCounts[cat.id]})`)
-    .join(', ');
-  
+  // Calculate total samples to export and samples per category using getCategoryCount
+  const totalToExport = selectedCategories.reduce(
+    (sum, category) => sum + getCategoryCount(category.id), 
+    0
+  );
+
   return (
-    <div className="flex flex-col md:flex-row items-start md:items-center justify-between p-6 rounded-md bg-zinc-900 border border-zinc-800 animate-fade-in">
-      <div className="mb-4 md:mb-0">
-        <h3 className="text-lg font-medium mb-1 tracking-tighter">Export Selected Samples</h3>
-        <p className="text-sm text-muted-foreground">
-          {selectedSamplesCount === 0 ? (
-            <span>No samples selected</span>
-          ) : (
-            <span>
-              {selectedSamplesCount} {selectedSamplesCount === 1 ? 'sample' : 'samples'} selected from {selectedCategoriesText}
-            </span>
-          )}
-        </p>
+    <div className="w-full border rounded-xl p-8 bg-orange-500/10 border-orange-500/20 animate-fade-in">
+      <h3 className="text-xl font-medium mb-6 text-center">Export Selected Samples</h3>
+      
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 mb-6">
+        {selectedCategories.map(category => {
+          // Get accurate count for this category
+          const categoryCount = getCategoryCount(category.id);
+          if (categoryCount === 0) return null;
+          
+          return (
+            <div key={category.id} className="bg-orange-500/5 border border-orange-500/20 rounded-lg p-4 text-center">
+              <h4 className="font-semibold text-orange-300 mb-1">{category.name}</h4>
+              <p className="text-muted-foreground text-sm">{categoryCount} samples</p>
+            </div>
+          );
+        })}
       </div>
       
-      <button
-        onClick={exportSamples}
-        disabled={selectedSamplesCount === 0 || isExporting}
-        className={`px-6 py-3 rounded-md font-medium transition-all focus-ring ${
-          selectedSamplesCount === 0 || isExporting
-            ? 'bg-zinc-800 text-muted-foreground cursor-not-allowed'
-            : 'bg-orange-500 text-white hover:bg-orange-600'
-        } flex items-center`}
-      >
-        {isExporting ? (
-          <>
-            <svg className="animate-spin -ml-1 mr-2 h-4 w-4 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
-            Creating ZIP...
-          </>
-        ) : (
-          <>
-            <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="mr-2">
-              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
-              <polyline points="7 10 12 15 17 10"></polyline>
-              <line x1="12" y1="15" x2="12" y2="3"></line>
-            </svg>
-            Export Samples
-          </>
-        )}
-      </button>
+      {totalToExport > 0 ? (
+        <div className="flex flex-col items-center space-y-4">
+          <p className="text-center text-muted-foreground">
+            {totalToExport === 1 
+              ? '1 sample will be exported' 
+              : `${totalToExport} samples will be exported`}
+          </p>
+          
+          <div className="flex space-x-4">
+            <button
+              onClick={exportSamples}
+              disabled={isExporting}
+              className="px-6 py-3 rounded-lg bg-orange-500 hover:bg-orange-600 text-white font-medium transition-colors disabled:opacity-50 disabled:pointer-events-none focus-ring"
+            >
+              {isExporting ? 'Creating ZIP...' : 'Export as ZIP'}
+            </button>
+            
+            <button
+              onClick={resetAll}
+              className="px-6 py-3 rounded-lg bg-zinc-800 hover:bg-zinc-700 text-zinc-300 font-medium transition-colors focus-ring"
+            >
+              Reset All
+            </button>
+          </div>
+        </div>
+      ) : (
+        <p className="text-center text-muted-foreground">No samples selected for export</p>
+      )}
     </div>
   );
 };
