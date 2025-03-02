@@ -60,6 +60,11 @@ const SubLabelsPanel: React.FC = () => {
     }
   };
   
+  // Handle close button click
+  const handleCloseClick = () => {
+    setShowSubLabelsPanel(false);
+  };
+  
   if (!showSubLabelsPanel) return null;
   
   const groupNames = Object.keys(groupingResults);
