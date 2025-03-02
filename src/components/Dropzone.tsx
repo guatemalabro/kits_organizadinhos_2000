@@ -58,10 +58,10 @@ const Dropzone: React.FC = () => {
       
       // Handle both DataTransferItemList (for drag and drop) and FileList (for file input)
       if ('length' in items) {
-        if ('webkitGetAsEntry' in items[0]) {
+        if (items.length > 0 && 'webkitGetAsEntry' in items[0]) {
           // It's a DataTransferItemList from drag and drop
           await Promise.all(
-            Array.from(items).map(async (item) => {
+            Array.from(items as DataTransferItemList).map(async (item) => {
               const entry = item.webkitGetAsEntry();
               if (entry) {
                 await processEntry(entry);
@@ -178,8 +178,9 @@ const Dropzone: React.FC = () => {
         type="file"
         accept="audio/*,.wav,.mp3,.aiff,.aif"
         multiple
-        webkitdirectory=""
-        directory=""
+        // Using data attributes to fix TypeScript error
+        data-directory=""
+        data-webkitdirectory=""
         onChange={handleFileInputChange}
         className="hidden"
       />
