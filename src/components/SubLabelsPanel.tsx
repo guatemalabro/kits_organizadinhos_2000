@@ -34,7 +34,7 @@ const SubLabelsPanel: React.FC = () => {
     };
   }, [showSubLabelsPanel, samples, setShowSubLabelsPanel]);
   
-  // Generate subgroups based on sonic characteristics
+  // Generate subgroups based on sonic characteristics, but only for selected categories
   const analyzeSamples = () => {
     if (samples.length === 0) {
       toast.error("No samples to analyze. Please upload some audio files first.");
@@ -49,15 +49,28 @@ const SubLabelsPanel: React.FC = () => {
     setTimeout(() => {
       const results: Record<string, string[]> = {};
       
-      // Group samples by category first
+      // Only use selected categories
+      const selectedCategories = categories.filter(cat => cat.selected);
+      
+      // If no categories are selected, show a message
+      if (selectedCategories.length === 0) {
+        toast.warning("No categories selected. Please select at least one category for analysis.");
+        setIsAnalyzing(false);
+        return;
+      }
+      
+      // Group samples by category first, but only for selected categories
       const samplesByCategory: Record<string, any[]> = {};
       
       samples.forEach(sample => {
         const categoryId = sample.category.id;
-        if (!samplesByCategory[categoryId]) {
-          samplesByCategory[categoryId] = [];
+        // Only include samples from selected categories
+        if (selectedCategories.some(cat => cat.id === categoryId)) {
+          if (!samplesByCategory[categoryId]) {
+            samplesByCategory[categoryId] = [];
+          }
+          samplesByCategory[categoryId].push(sample);
         }
-        samplesByCategory[categoryId].push(sample);
       });
       
       // Process each category with samples
@@ -140,7 +153,7 @@ const SubLabelsPanel: React.FC = () => {
       setIsAnalyzing(false);
       
       if (Object.keys(results).length === 0) {
-        toast.warning("No groups could be created. Try uploading more samples.");
+        toast.warning("No groups could be created. Try uploading more samples or selecting different categories.");
       } else {
         toast.success("Samples analyzed and grouped successfully!");
         // Set the first group as selected by default
@@ -184,7 +197,7 @@ const SubLabelsPanel: React.FC = () => {
       
       <div 
         ref={panelRef}
-        className="fixed inset-4 z-50 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl vhs-border flex flex-col max-w-[calc(100vw-32px)] max-h-[calc(100vh-32px)]"
+        className="fixed inset-2 z-50 bg-zinc-900 border border-zinc-800 rounded-xl shadow-2xl vhs-border flex flex-col"
         onClick={handleContainerClick}
       >
         <div className="p-4 md:p-6 border-b border-zinc-800 flex justify-between items-center sticky top-0 bg-zinc-900 z-10">
@@ -224,6 +237,11 @@ const SubLabelsPanel: React.FC = () => {
             ) : groupNames.length === 0 ? (
               <div className="text-center py-8 text-gray-500">
                 <p>No groups available.</p>
+                <p className="mt-2 text-sm text-gray-400">
+                  {categories.some(cat => cat.selected) 
+                    ? "Try selecting different categories or upload more samples." 
+                    : "Please select at least one category to analyze."}
+                </p>
                 <button 
                   onClick={(e) => {
                     e.stopPropagation();
@@ -288,7 +306,15 @@ const SubLabelsPanel: React.FC = () => {
                       </thead>
                       <tbody className="divide-y divide-zinc-800/30">
                         {groupingResults[selectedGroup]?.map((sampleName, index) => (
-                          <tr key={index} className="hover:bg-zinc-700/20 group cursor-pointer">
+                          <tr 
+                            key={index} 
+                            className="hover:bg-zinc-700/20 group cursor-pointer"
+                            onClick={(e) => {
+                              e.stopPropagation();
+                              // In a real app, this would play the sample
+                              toast.info(`Playing sample: ${sampleName}`);
+                            }}
+                          >
                             <td className="py-3 text-gray-500 text-sm">{index + 1}</td>
                             <td className="py-3 text-gray-300 group-hover:text-orange-300 transition-colors">{sampleName}</td>
                           </tr>
@@ -326,17 +352,29 @@ const SubLabelsPanel: React.FC = () => {
                   <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
                 </svg>
                 <h3 className="text-xl font-medium text-gray-400 mb-2">No Analysis Results</h3>
-                <p className="text-gray-500 max-w-md mb-6">
-                  Upload audio samples and run the analysis to group them by sonic characteristics.
+                <p className="text-gray-500 max-w-md mb-3">
+                  {categories.some(cat => cat.selected) 
+                    ? "Upload audio samples and run the analysis to group them by sonic characteristics."
+                    : "Please select at least one category before running the analysis."}
                 </p>
+                {!categories.some(cat => cat.selected) && (
+                  <p className="text-orange-400 text-sm mb-4">
+                    Go back to the main screen and select some categories first.
+                  </p>
+                )}
                 <button
                   onClick={(e) => {
                     e.stopPropagation();
-                    analyzeSamples();
+                    if (categories.some(cat => cat.selected)) {
+                      analyzeSamples();
+                    } else {
+                      toast.warning("Please select at least one category first");
+                      setShowSubLabelsPanel(false);
+                    }
                   }}
                   className="px-6 py-3 rounded-lg bg-orange-600/80 hover:bg-orange-500/80 text-white font-medium transition-colors"
                 >
-                  Start Analysis
+                  {categories.some(cat => cat.selected) ? "Start Analysis" : "Go Back and Select Categories"}
                 </button>
               </div>
             ) : (

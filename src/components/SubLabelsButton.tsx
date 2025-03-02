@@ -5,7 +5,7 @@ import { useSampleContext } from '@/context/SampleContext';
 import { toast } from 'sonner';
 
 const SubLabelsButton: React.FC = () => {
-  const { samples, showSubLabelsPanel, setShowSubLabelsPanel } = useSampleContext();
+  const { samples, categories, showSubLabelsPanel, setShowSubLabelsPanel } = useSampleContext();
   
   const handleButtonClick = (e: React.MouseEvent) => {
     e.stopPropagation();
@@ -13,6 +13,14 @@ const SubLabelsButton: React.FC = () => {
     
     if (samples.length === 0) {
       toast.error("Please upload some audio samples first");
+      return;
+    }
+    
+    // Check if any categories are selected
+    const hasSelectedCategories = categories.some(cat => cat.selected);
+    
+    if (!hasSelectedCategories) {
+      toast.warning("Please select at least one category before running the analysis");
       return;
     }
     
