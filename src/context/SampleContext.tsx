@@ -1,4 +1,5 @@
-import React, { createContext, useContext, useState, ReactNode, useCallback } from 'react';
+
+import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 import JSZip from 'jszip';
 
 export interface Sample {
@@ -31,6 +32,7 @@ interface SampleContextType {
   analyzedCount: number;
   totalSamples: number;
   selectedSamplesCount: number;
+  getFilteredSamples: () => Sample[];
   currentlyPlayingSample: string | null;
   addSamples: (files: File[]) => void;
   toggleCategory: (categoryId: string) => void;
@@ -69,6 +71,13 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const [analyzedCount, setAnalyzedCount] = useState(0);
   const [totalSamples, setTotalSamples] = useState(0);
   const [currentlyPlayingSample, setCurrentlyPlayingSample] = useState<string | null>(null);
+
+  // Get filtered samples based on selected categories
+  const getFilteredSamples = useCallback(() => {
+    return samples.filter(sample => 
+      categories.find(cat => cat.id === sample.category.id)?.selected
+    );
+  }, [samples, categories]);
 
   // Improved sample analysis with more accurate categorization
   const analyzeSamples = useCallback(async (files: File[]) => {
@@ -269,9 +278,10 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     setCurrentlyPlayingSample(null);
   }, []);
 
-  const selectedSamplesCount = categories
-    .filter(cat => cat.selected)
-    .reduce((acc, cat) => acc + cat.count, 0);
+  // Get the accurate count of samples that will be exported
+  const selectedSamplesCount = useMemo(() => {
+    return getFilteredSamples().length;
+  }, [getFilteredSamples]);
 
   const value = {
     samples,
@@ -281,6 +291,7 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
     analyzedCount,
     totalSamples,
     selectedSamplesCount,
+    getFilteredSamples,
     currentlyPlayingSample,
     addSamples,
     toggleCategory,

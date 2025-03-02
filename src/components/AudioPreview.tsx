@@ -17,13 +17,11 @@ const formatFileSize = (bytes: number): string => {
 };
 
 const AudioPreview: React.FC = () => {
-  const { samples, playSample, stopSample, categories, isAnalyzing } = useSampleContext();
+  const { getFilteredSamples, samples, playSample, stopSample, categories, isAnalyzing } = useSampleContext();
   
   const filteredSamples = useMemo(() => {
-    return samples.filter(sample => 
-      categories.find(cat => cat.id === sample.category.id)?.selected
-    );
-  }, [samples, categories]);
+    return getFilteredSamples();
+  }, [getFilteredSamples]);
   
   if (samples.length === 0 || isAnalyzing) {
     return null;

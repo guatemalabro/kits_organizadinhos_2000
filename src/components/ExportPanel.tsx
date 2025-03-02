@@ -9,16 +9,27 @@ const ExportPanel: React.FC = () => {
     selectedSamplesCount, 
     categories,
     isExporting,
-    isAnalyzing 
+    isAnalyzing,
+    getFilteredSamples
   } = useSampleContext();
   
   if (samples.length === 0 || isAnalyzing) {
     return null;
   }
   
-  const selectedCategories = categories
-    .filter(cat => cat.selected && cat.count > 0)
-    .map(cat => cat.name)
+  // Get accurate counts per category for selected samples
+  const filteredSamples = getFilteredSamples();
+  const categoryCounts: Record<string, number> = {};
+  
+  filteredSamples.forEach(sample => {
+    const categoryId = sample.category.id;
+    categoryCounts[categoryId] = (categoryCounts[categoryId] || 0) + 1;
+  });
+  
+  // Build a string showing categories and their counts
+  const selectedCategoriesText = categories
+    .filter(cat => cat.selected && categoryCounts[cat.id] > 0)
+    .map(cat => `${cat.name} (${categoryCounts[cat.id]})`)
     .join(', ');
   
   return (
@@ -30,7 +41,7 @@ const ExportPanel: React.FC = () => {
             <span>No samples selected</span>
           ) : (
             <span>
-              {selectedSamplesCount} {selectedSamplesCount === 1 ? 'sample' : 'samples'} selected from {selectedCategories}
+              {selectedSamplesCount} {selectedSamplesCount === 1 ? 'sample' : 'samples'} selected from {selectedCategoriesText}
             </span>
           )}
         </p>
