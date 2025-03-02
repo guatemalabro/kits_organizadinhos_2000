@@ -27,7 +27,7 @@ const CategorySelector: React.FC = () => {
       <div 
         className={`flex items-center justify-between px-4 py-3 rounded-md transition-all duration-200 cursor-pointer ${
           category.selected 
-            ? 'bg-orange-500/20 hover:bg-orange-500/30 border border-orange-500/30' 
+            ? 'bg-gray-500/20 hover:bg-gray-500/30 border border-gray-500/30' 
             : 'bg-zinc-800/80 hover:bg-zinc-700/50 border border-zinc-700/50'
         }`}
         onClick={() => toggleCategory(category.id)}
@@ -35,7 +35,7 @@ const CategorySelector: React.FC = () => {
         <div className="flex items-center">
           <div 
             className={`w-5 h-5 rounded-sm mr-3 flex items-center justify-center transition-colors ${
-              category.selected ? 'bg-orange-500' : 'bg-zinc-700'
+              category.selected ? 'bg-gray-500' : 'bg-zinc-700'
             }`}
           >
             {category.selected && (
@@ -61,7 +61,7 @@ const CategorySelector: React.FC = () => {
           <span className={`text-sm rounded-full px-2.5 py-0.5 ${
             actualCount > 0 
               ? category.selected 
-                ? 'bg-orange-500/20 text-orange-400' 
+                ? 'bg-gray-500/20 text-gray-300' 
                 : 'bg-zinc-700 text-zinc-300' 
               : 'bg-zinc-800 text-zinc-500'
           }`}>
@@ -80,7 +80,7 @@ const CategorySelector: React.FC = () => {
           <div className="flex items-center space-x-4">
             <button 
               onClick={selectAllCategories}
-              className="text-xs text-orange-400 hover:text-orange-300 transition-colors focus-ring"
+              className="text-xs text-gray-400 hover:text-gray-300 transition-colors focus-ring"
             >
               Select All
             </button>

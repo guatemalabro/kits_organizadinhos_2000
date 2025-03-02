@@ -1,4 +1,3 @@
-
 import React, { createContext, useContext, useState, ReactNode, useCallback, useMemo } from 'react';
 import JSZip from 'jszip';
 
@@ -58,14 +57,14 @@ export const useSampleContext = () => {
 export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) => {
   const [samples, setSamples] = useState<Sample[]>([]);
   const [categories, setCategories] = useState<SampleCategory[]>([
-    { id: 'kicks', name: 'Kicks', count: 0, selected: true },
-    { id: 'snares', name: 'Snares/Claps', count: 0, selected: true },
-    { id: 'hihats', name: 'Hi-Hats', count: 0, selected: true },
-    { id: 'percussion', name: 'Percussion', count: 0, selected: true },
-    { id: 'bass', name: 'Bass', count: 0, selected: true },
-    { id: 'sfx', name: 'SFX', count: 0, selected: true },
-    { id: 'vocals', name: 'Vocals', count: 0, selected: true },
-    { id: 'other', name: 'Other', count: 0, selected: true },
+    { id: 'kicks', name: 'Kicks', count: 0, selected: false },
+    { id: 'snares', name: 'Snares/Claps', count: 0, selected: false },
+    { id: 'hihats', name: 'Hi-Hats', count: 0, selected: false },
+    { id: 'percussion', name: 'Percussion', count: 0, selected: false },
+    { id: 'bass', name: 'Bass', count: 0, selected: false },
+    { id: 'sfx', name: 'SFX', count: 0, selected: false },
+    { id: 'vocals', name: 'Vocals', count: 0, selected: false },
+    { id: 'other', name: 'Other', count: 0, selected: false },
   ]);
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [isExporting, setIsExporting] = useState(false);
@@ -426,7 +425,7 @@ export const SampleProvider: React.FC<{ children: ReactNode }> = ({ children }) 
   const resetAll = useCallback(() => {
     setSamples([]);
     setCategories(prev =>
-      prev.map(category => ({ ...category, count: 0, selected: true }))
+      prev.map(category => ({ ...category, count: 0, selected: false }))
     );
     setAnalyzedCount(0);
     setTotalSamples(0);
