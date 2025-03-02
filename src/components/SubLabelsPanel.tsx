@@ -1,4 +1,3 @@
-
 import React, { useState, useEffect } from 'react';
 import { useSampleContext } from '@/context/SampleContext';
 import { toast } from 'sonner';
@@ -153,7 +152,7 @@ const SubLabelsPanel: React.FC = () => {
   
   return (
     <div className="fixed inset-0 bg-black/80 backdrop-blur-sm z-50 flex items-center justify-center p-4 animate-in fade-in duration-200">
-      <div className="bg-zinc-900 border border-zinc-800 rounded-xl w-full max-w-4xl max-h-[90vh] overflow-hidden vhs-border shadow-xl">
+      <div className="bg-zinc-900 border border-zinc-800 rounded-xl w-full max-w-5xl max-h-[90vh] overflow-hidden vhs-border shadow-xl">
         <div className="p-6 border-b border-zinc-800 flex justify-between items-center sticky top-0 bg-zinc-900 z-10">
           <h2 className="text-2xl font-bold text-orange-400 vhs-text" data-text="Audio Similarity Analysis">
             Audio Similarity Analysis
@@ -170,9 +169,9 @@ const SubLabelsPanel: React.FC = () => {
           </button>
         </div>
         
-        <div className="grid grid-cols-1 md:grid-cols-3 h-[calc(90vh-74px)]">
+        <div className="grid grid-cols-1 md:grid-cols-3 h-[calc(90vh-74px)] overflow-hidden">
           {/* Left sidebar - Group list */}
-          <div className="bg-zinc-950/50 border-r border-zinc-800 overflow-y-auto p-4">
+          <div className="bg-zinc-950/50 border-r border-zinc-800 overflow-y-auto p-4 h-full">
             <h3 className="text-lg font-medium text-orange-300 mb-4">Similarity Groups</h3>
             
             {isAnalyzing ? (
@@ -199,7 +198,7 @@ const SubLabelsPanel: React.FC = () => {
                 </button>
               </div>
             ) : (
-              <div className="space-y-2">
+              <div className="space-y-2 overflow-y-auto">
                 {groupNames.map((groupName) => (
                   <button
                     key={groupName}
@@ -221,7 +220,7 @@ const SubLabelsPanel: React.FC = () => {
           </div>
           
           {/* Right content area - Sample details */}
-          <div className="col-span-2 overflow-y-auto p-6">
+          <div className="col-span-2 overflow-y-auto p-6 h-full">
             {isAnalyzing ? (
               <div className="flex flex-col items-center justify-center h-64">
                 <p className="text-gray-400 text-lg">Analyzing samples...</p>

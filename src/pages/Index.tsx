@@ -31,10 +31,10 @@ const Index = () => {
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
             <div className="lg:col-span-1">
-              <div className="vhs-border rounded-lg overflow-hidden glass-dark mb-6">
+              <div className="vhs-border rounded-lg overflow-hidden glass-dark mb-8">
                 <CategorySelector />
               </div>
-              <div className="vhs-border rounded-lg overflow-hidden glass-dark p-5 bg-gradient-to-b from-zinc-900/50 to-zinc-950/70">
+              <div className="vhs-border rounded-lg overflow-hidden glass-dark p-6 bg-gradient-to-b from-zinc-900/50 to-zinc-950/70">
                 <h3 className="text-xl font-medium tracking-tighter mb-4 text-orange-300">Audio Analysis Tools</h3>
                 <SubLabelsButton />
                 <p className="text-xs text-gray-500 mt-4 text-center">

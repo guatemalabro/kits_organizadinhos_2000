@@ -20,10 +20,10 @@ const SubLabelsButton: React.FC = () => {
     <>
       <button
         onClick={handleButtonClick}
-        className="w-full px-6 py-4 mt-4 mb-2 rounded-lg bg-orange-600/90 hover:bg-orange-500/90 text-white font-medium transition-colors border border-orange-500/30 hover:border-orange-400/60 focus-ring shadow-md hover:shadow-lg flex items-center justify-center"
+        className="w-full px-6 py-5 mt-4 mb-2 rounded-lg bg-orange-600 hover:bg-orange-500 text-white font-semibold transition-colors border border-orange-500/50 hover:border-orange-400/70 focus:ring-2 focus:ring-orange-400/50 focus:outline-none shadow-lg hover:shadow-xl flex items-center justify-center"
       >
-        <div className="mr-3 w-6 h-6 bg-orange-700 rounded-full flex items-center justify-center">
-          <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
+        <div className="mr-3 w-7 h-7 bg-orange-700 rounded-full flex items-center justify-center">
+          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" className="text-white">
             <path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6" />
           </svg>
         </div>
