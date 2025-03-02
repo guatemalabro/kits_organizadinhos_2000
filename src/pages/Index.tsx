@@ -6,6 +6,7 @@ import Dropzone from '@/components/Dropzone';
 import CategorySelector from '@/components/CategorySelector';
 import AudioPreview from '@/components/AudioPreview';
 import ExportPanel from '@/components/ExportPanel';
+import SubLabelsButton from '@/components/SubLabelsButton';
 import { SampleProvider } from '@/context/SampleContext';
 
 const Index = () => {
@@ -31,6 +32,7 @@ const Index = () => {
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
             <div className="lg:col-span-1 vhs-border rounded-lg overflow-hidden glass-dark">
               <CategorySelector />
+              <SubLabelsButton />
             </div>
             
             <div className="lg:col-span-2 vhs-border rounded-lg overflow-hidden glass-dark">
