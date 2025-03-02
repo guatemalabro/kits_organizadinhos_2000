@@ -73,7 +73,7 @@ const CategorySelector: React.FC = () => {
   };
 
   return (
-    <div className="w-full animate-fade-in">
+    <div className="w-full animate-fade-in p-4">
       <div className="flex flex-col space-y-1 mb-6">
         <div className="flex items-center justify-between mb-2">
           <h3 className="text-lg font-medium tracking-tighter">Categories</h3>
@@ -104,7 +104,7 @@ const CategorySelector: React.FC = () => {
         </div>
       </div>
 
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
+      <div className="grid grid-cols-1 gap-2">
         {categories.map(category => (
           <CategoryItem key={category.id} category={category} />
         ))}

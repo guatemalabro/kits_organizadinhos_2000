@@ -11,6 +11,7 @@ const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
   const [isAnalyzing, setIsAnalyzing] = useState(false);
   const [groupingResults, setGroupingResults] = useState<Record<string, string[]>>({});
   const [analysisComplete, setAnalysisComplete] = useState(false);
+  const [specificityLevel, setSpecificityLevel] = useState([50]);
   
   // Generate subgroups based on sonic characteristics
   const analyzeSamples = () => {
@@ -29,6 +30,12 @@ const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
     setTimeout(() => {
       const results: Record<string, string[]> = {};
       
+      // Determine detail level based on specificity slider (0-100)
+      // Higher specificity = more detailed groups
+      const detailLevel = specificityLevel[0] / 100;
+      const createDetailedGroups = detailLevel > 0.3;
+      const createVeryDetailedGroups = detailLevel > 0.7;
+      
       // Process each category with samples, but only if it's selected
       categories.forEach(category => {
         if (!category.selected) return;
@@ -36,19 +43,29 @@ const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
         const categorySamples = selectedSamples.filter(s => s.category.id === category.id);
         if (categorySamples.length === 0) return;
         
-        // Create different subgroups based on category
+        // Create different subgroups based on category and detail level
         switch(category.id) {
           case 'kicks':
             results['Kicks_Punchy'] = categorySamples.filter((_, i) => i % 4 === 0).map(s => s.name);
             results['Kicks_Subby'] = categorySamples.filter((_, i) => i % 4 === 1).map(s => s.name);
-            results['Kicks_LoFi'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
-            results['Kicks_Distorted'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
+            if (createDetailedGroups) {
+              results['Kicks_LoFi'] = categorySamples.filter((_, i) => i % 4 === 2).map(s => s.name);
+              results['Kicks_Distorted'] = categorySamples.filter((_, i) => i % 4 === 3).map(s => s.name);
+            }
+            if (createVeryDetailedGroups && categorySamples.length > 8) {
+              results['Kicks_Acoustic'] = categorySamples.filter((_, i) => i % 8 === 4).map(s => s.name);
+              results['Kicks_Layered'] = categorySamples.filter((_, i) => i % 8 === 5).map(s => s.name);
+            }
             break;
             
           case 'snares':
             results['Snares_Acoustic'] = categorySamples.filter((_, i) => i % 3 === 0).map(s => s.name);
             results['Snares_Electronic'] = categorySamples.filter((_, i) => i % 3 === 1).map(s => s.name);
             results['Claps'] = categorySamples.filter((_, i) => i % 3 === 2).map(s => s.name);
+            if (createVeryDetailedGroups && categorySamples.length > 6) {
+              results['Snares_Processed'] = categorySamples.filter((_, i) => i % 6 === 3).map(s => s.name);
+              results['Snares_LoFi'] = categorySamples.filter((_, i) => i % 6 === 4).map(s => s.name);
+            }
             break;
             
           case 'hihats':
@@ -80,8 +97,14 @@ const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
             break;
             
           default:
-            results[`${category.name}_Group1`] = categorySamples.filter((_, i) => i % 2 === 0).map(s => s.name);
-            results[`${category.name}_Group2`] = categorySamples.filter((_, i) => i % 2 === 1).map(s => s.name);
+            if (createDetailedGroups) {
+              results[`${category.name}_Group1`] = categorySamples.filter((_, i) => i % 3 === 0).map(s => s.name);
+              results[`${category.name}_Group2`] = categorySamples.filter((_, i) => i % 3 === 1).map(s => s.name);
+              results[`${category.name}_Group3`] = categorySamples.filter((_, i) => i % 3 === 2).map(s => s.name);
+            } else {
+              results[`${category.name}_Group1`] = categorySamples.filter((_, i) => i % 2 === 0).map(s => s.name);
+              results[`${category.name}_Group2`] = categorySamples.filter((_, i) => i % 2 === 1).map(s => s.name);
+            }
         }
       });
       
@@ -146,6 +169,23 @@ const SubLabelsPanel: React.FC<{ isOpen: boolean; onClose: () => void }> = ({
               This tool analyzes your audio samples and groups them based on their sonic characteristics.
               It uses audio fingerprinting to identify similar-sounding samples regardless of filename.
             </p>
+            
+            <div className="mb-6">
+              <label className="block text-sm font-medium text-gray-400 mb-2">
+                Specificity Level: {specificityLevel[0]}%
+              </label>
+              <Slider
+                defaultValue={specificityLevel}
+                max={100}
+                step={10}
+                onValueChange={setSpecificityLevel}
+                className="py-2"
+              />
+              <div className="flex justify-between text-xs text-gray-500 mt-1">
+                <span>Basic Groups</span>
+                <span>Ultra-Detailed</span>
+              </div>
+            </div>
             
             <button
               onClick={analyzeSamples}

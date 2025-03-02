@@ -30,9 +30,15 @@ const Index = () => {
           </div>
           
           <div className="grid grid-cols-1 lg:grid-cols-3 gap-8 mb-10">
-            <div className="lg:col-span-1 vhs-border rounded-lg overflow-hidden glass-dark">
-              <CategorySelector />
-              <SubLabelsButton />
+            <div className="lg:col-span-1">
+              <div className="vhs-border rounded-lg overflow-hidden glass-dark mb-6">
+                <CategorySelector />
+              </div>
+              <div className="vhs-border rounded-lg overflow-hidden glass-dark">
+                <div className="p-4">
+                  <SubLabelsButton />
+                </div>
+              </div>
             </div>
             
             <div className="lg:col-span-2 vhs-border rounded-lg overflow-hidden glass-dark">

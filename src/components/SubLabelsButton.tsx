@@ -6,13 +6,19 @@ import { toast } from 'sonner';
 
 const SubLabelsButton: React.FC = () => {
   const [isPanelOpen, setIsPanelOpen] = useState(false);
-  const { selectedSamplesCount } = useSampleContext();
+  const { selectedSamplesCount, samples } = useSampleContext();
   
   const handleButtonClick = () => {
+    if (samples.length === 0) {
+      toast.error("Please upload some audio samples first");
+      return;
+    }
+    
     if (selectedSamplesCount === 0) {
       toast.error("Please select at least one category before using audio similarity grouping");
       return;
     }
+    
     setIsPanelOpen(true);
   };
   
